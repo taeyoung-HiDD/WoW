@@ -1,5 +1,6 @@
 "use client";
 
+import { useLayoutEffect, useRef } from "react";
 import {
   GANTT_DAY_W,
   GANTT_LABEL_W,
@@ -25,6 +26,8 @@ export function GanttView({
   onOpenProject,
   today,
 }: GanttViewProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   let gMinD = projects.length
     ? new Date(
         Math.min(
@@ -51,6 +54,16 @@ export function GanttView({
   const gTimelineW = gTotalDays * GANTT_DAY_W;
   const gTodayX = Math.ceil((today.getTime() - gMinD.getTime()) / 86400000) * GANTT_DAY_W;
   const anyExpanded = Object.values(ganttExpanded).some(Boolean);
+
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const todayLeft = GANTT_LABEL_W + gTodayX;
+    const target = todayLeft - el.clientWidth / 2;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    el.scrollLeft = Math.max(0, Math.min(target, maxScroll));
+  }, [gTodayX, projects.length, anyExpanded]);
 
   const months: { label: string; left: number }[] = [];
   const gMC = new Date(gMinD.getFullYear(), gMinD.getMonth(), 1);
@@ -83,7 +96,10 @@ export function GanttView({
       </div>
 
       <div className="rounded-xl border border-hub-border overflow-hidden bg-white">
-        <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-220px)] scrollbar-hub">
+        <div
+          ref={scrollRef}
+          className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-220px)] scrollbar-hub"
+        >
           <div style={{ minWidth: GANTT_LABEL_W + gTimelineW }} className="relative">
             {/* Header */}
             <div className="flex h-9 border-b-2 border-hub-border bg-[#F7FAF5] sticky top-0 z-20">
