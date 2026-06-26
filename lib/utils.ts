@@ -69,12 +69,29 @@ export function todayAtMidnight(): Date {
   return today;
 }
 
+export function parseDateDay(value: string): Date {
+  const date = new Date(value + "T00:00:00");
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+export function rangesOverlap(
+  aStart: Date,
+  aEnd: Date,
+  bStart: Date,
+  bEnd: Date
+): boolean {
+  return aStart.getTime() <= bEnd.getTime() && aEnd.getTime() >= bStart.getTime();
+}
+
 export function getWeekRange(today: Date) {
   const dow = today.getDay() === 0 ? 6 : today.getDay() - 1;
   const wStart = new Date(today);
   wStart.setDate(today.getDate() - dow);
+  wStart.setHours(0, 0, 0, 0);
   const wEnd = new Date(wStart);
   wEnd.setDate(wStart.getDate() + 6);
+  wEnd.setHours(0, 0, 0, 0);
   return { wStart, wEnd };
 }
 
@@ -82,8 +99,10 @@ export function getNextWeekRange(today: Date) {
   const { wEnd } = getWeekRange(today);
   const nwStart = new Date(wEnd);
   nwStart.setDate(wEnd.getDate() + 1);
+  nwStart.setHours(0, 0, 0, 0);
   const nwEnd = new Date(nwStart);
   nwEnd.setDate(nwStart.getDate() + 6);
+  nwEnd.setHours(0, 0, 0, 0);
   return { nwStart, nwEnd };
 }
 
@@ -129,6 +148,41 @@ export function milestoneRangeFmt(
   const msStart = milestoneStart(milestone, project, index);
   const msEnd = milestoneEnd(milestone);
   return `${fmt(msStart, { month: "short", day: "numeric" })} ~ ${fmt(msEnd, { month: "short", day: "numeric" })}`;
+}
+
+export function isMilestoneActiveOn(
+  milestone: Milestone,
+  project: Project,
+  index: number,
+  day: Date
+): boolean {
+  if (milestone.done) return false;
+  const start = parseDateDay(milestoneStart(milestone, project, index));
+  const end = parseDateDay(milestoneEnd(milestone));
+  return start.getTime() <= day.getTime() && end.getTime() >= day.getTime();
+}
+
+export function isMilestoneOverdue(
+  milestone: Milestone,
+  project: Project,
+  index: number,
+  day: Date
+): boolean {
+  if (milestone.done) return false;
+  const end = parseDateDay(milestoneEnd(milestone));
+  return end.getTime() < day.getTime();
+}
+
+export function milestoneOverlapsRange(
+  milestone: Milestone,
+  project: Project,
+  index: number,
+  rangeStart: Date,
+  rangeEnd: Date
+): boolean {
+  const start = parseDateDay(milestoneStart(milestone, project, index));
+  const end = parseDateDay(milestoneEnd(milestone));
+  return rangesOverlap(start, end, rangeStart, rangeEnd);
 }
 
 export function calcProgress(milestones: Milestone[]) {

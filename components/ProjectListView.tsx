@@ -2,18 +2,20 @@
 
 import { STATUS } from "@/lib/constants";
 import type { Project, ProjectMember } from "@/lib/types";
-import { fmt, getMemberNames, milestoneEnd, milestoneStart } from "@/lib/utils";
+import { fmt, getMemberNames, milestoneEnd, milestoneStart, isMilestoneActiveOn, isMilestoneOverdue, parseDateDay } from "@/lib/utils";
 
 interface ProjectListViewProps {
   projects: Project[];
   onOpenProject: (id: string) => void;
   membersLookup: ProjectMember[];
+  today: Date;
 }
 
 export function ProjectListView({
   projects,
   onOpenProject,
   membersLookup,
+  today,
 }: ProjectListViewProps) {
   const sorted = [...projects].sort((a, b) => {
     const aEnd = a.end || a.start;
@@ -36,11 +38,26 @@ export function ProjectListView({
       <div className="bg-white rounded-b-[10px] md:rounded-t-none rounded-[10px] border border-hub-border overflow-hidden">
         {sorted.map((p) => {
           const sc = STATUS[p.status];
-          const notDone = p.milestones
-            .filter((m) => !m.done)
-            .sort((a, b) => milestoneEnd(a).localeCompare(milestoneEnd(b)));
-          const cur = notDone[0];
-          const nxt = notDone[1];
+          const open = p.milestones
+            .map((m, idx) => ({ m, idx }))
+            .filter(({ m }) => !m.done)
+            .sort(
+              (a, b) =>
+                parseDateDay(milestoneStart(a.m, p, a.idx)).getTime() -
+                parseDateDay(milestoneStart(b.m, p, b.idx)).getTime()
+            );
+
+          let curIndex = open.findIndex(
+            ({ m, idx }) =>
+              isMilestoneActiveOn(m, p, idx, today) ||
+              isMilestoneOverdue(m, p, idx, today)
+          );
+          if (curIndex < 0) curIndex = 0;
+
+          const curEntry = open[curIndex] ?? null;
+          const nxtEntry = open[curIndex + 1] ?? null;
+          const cur = curEntry?.m ?? null;
+          const nxt = nxtEntry?.m ?? null;
 
           return (
             <div
@@ -74,7 +91,9 @@ export function ProjectListView({
                   {cur?.name ?? "—"}
                 </div>
                 <div className="text-[10px] text-hub-muted mt-px">
-                  {cur ? `${fmt(cur.start)} ~ ${fmt(cur.end)}` : ""}
+                  {cur && curEntry
+                    ? `${fmt(milestoneStart(cur, p, curEntry.idx))} ~ ${fmt(milestoneEnd(cur))}`
+                    : ""}
                 </div>
               </div>
               <div className="min-w-0">
@@ -82,7 +101,9 @@ export function ProjectListView({
                   {nxt?.name ?? "—"}
                 </div>
                 <div className="text-[10px] text-hub-muted mt-px">
-                  {nxt ? `${fmt(nxt.start)} ~ ${fmt(nxt.end)}` : ""}
+                  {nxt && nxtEntry
+                    ? `${fmt(milestoneStart(nxt, p, nxtEntry.idx))} ~ ${fmt(milestoneEnd(nxt))}`
+                    : ""}
                 </div>
               </div>
               <div className="text-xs text-hub-secondary truncate">

@@ -32,6 +32,11 @@ import {
   getNextWeekRange,
   milestoneRangeFmt,
   milestoneEnd,
+  milestoneStart,
+  isMilestoneActiveOn,
+  isMilestoneOverdue,
+  milestoneOverlapsRange,
+  parseDateDay,
   todayAtMidnight,
 } from "@/lib/utils";
 
@@ -166,9 +171,9 @@ export function useProjectHub() {
     [syncProject]
   );
 
-  const today = useMemo(() => todayAtMidnight(), []);
-  const { wStart, wEnd } = useMemo(() => getWeekRange(today), [today]);
-  const { nwStart, nwEnd } = useMemo(() => getNextWeekRange(today), [today]);
+  const today = todayAtMidnight();
+  const { wStart, wEnd } = useMemo(() => getWeekRange(today), [today.getTime()]);
+  const { nwStart, nwEnd } = useMemo(() => getNextWeekRange(today), [today.getTime()]);
 
   const active = useMemo(
     () => projects.filter((p) => !p.archived),
@@ -180,50 +185,44 @@ export function useProjectHub() {
   );
 
   const kanbanData = useMemo(() => {
-    const all: KanbanItem[] = [];
+    const kanbanToday: KanbanItem[] = [];
+    const kanbanUpcoming: KanbanItem[] = [];
+    const kanbanNextWeek: KanbanItem[] = [];
+
     active.forEach((proj) => {
       proj.milestones.forEach((m, idx) => {
-        const d = new Date(milestoneEnd(m) + "T00:00:00");
-        const isThisWeek = d >= wStart && d <= wEnd;
-        const isOverdue = d < wStart && !m.done;
-        if (isThisWeek || isOverdue) {
-          all.push({
-            ...m,
-            projectId: proj.id,
-            projectName: proj.name,
-            projectColor: proj.color,
-            rangeFmt: milestoneRangeFmt(proj, m, idx),
-          });
+        if (m.done) return;
+
+        const item: KanbanItem = {
+          ...m,
+          projectId: proj.id,
+          projectName: proj.name,
+          projectColor: proj.color,
+          rangeFmt: milestoneRangeFmt(proj, m, idx),
+        };
+
+        const activeToday = isMilestoneActiveOn(m, proj, idx, today);
+        const overdue = isMilestoneOverdue(m, proj, idx, today);
+        const overlapsThisWeek = milestoneOverlapsRange(m, proj, idx, wStart, wEnd);
+        const overlapsNextWeek = milestoneOverlapsRange(m, proj, idx, nwStart, nwEnd);
+        const msStart = parseDateDay(milestoneStart(m, proj, idx));
+
+        if (activeToday || overdue) {
+          kanbanToday.push(item);
+        } else if (overlapsThisWeek && msStart.getTime() > today.getTime()) {
+          kanbanUpcoming.push(item);
+        } else if (overlapsNextWeek) {
+          kanbanNextWeek.push(item);
         }
       });
-    });
-    all.sort((a, b) => new Date(milestoneEnd(a)).getTime() - new Date(milestoneEnd(b)).getTime());
-    const kanbanToday = all.filter(
-      (ms) => new Date(milestoneEnd(ms) + "T00:00:00") <= today
-    );
-    const kanbanUpcoming = all.filter((ms) => {
-      const d = new Date(milestoneEnd(ms) + "T00:00:00");
-      return d > today && d <= wEnd;
     });
 
-    const kanbanNextWeek: KanbanItem[] = [];
-    active.forEach((proj) => {
-      proj.milestones.forEach((m, idx) => {
-        const d = new Date(milestoneEnd(m) + "T00:00:00");
-        if (d >= nwStart && d <= nwEnd) {
-          kanbanNextWeek.push({
-            ...m,
-            projectId: proj.id,
-            projectName: proj.name,
-            projectColor: proj.color,
-            rangeFmt: milestoneRangeFmt(proj, m, idx),
-          });
-        }
-      });
-    });
-    kanbanNextWeek.sort(
-      (a, b) => new Date(milestoneEnd(a)).getTime() - new Date(milestoneEnd(b)).getTime()
-    );
+    const byEnd = (a: KanbanItem, b: KanbanItem) =>
+      parseDateDay(milestoneEnd(a)).getTime() - parseDateDay(milestoneEnd(b)).getTime();
+
+    kanbanToday.sort(byEnd);
+    kanbanUpcoming.sort(byEnd);
+    kanbanNextWeek.sort(byEnd);
 
     return {
       kanbanToday,

@@ -63,6 +63,7 @@ export function ProjectSection({
           projects={projects}
           onOpenProject={onOpenProject}
           membersLookup={membersLookup}
+          today={today}
         />
       )}
       {projectView === "gantt" && (
