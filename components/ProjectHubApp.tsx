@@ -131,7 +131,11 @@ export default function ProjectHubApp() {
         )}
 
         {hub.view === "archive" && (
-          <ArchiveView projects={hub.archived} onRestore={hub.restoreProject} />
+          <ArchiveView
+            projects={hub.archived}
+            onRestore={hub.restoreProject}
+            onDelete={hub.deleteProject}
+          />
         )}
       </main>
 
@@ -146,6 +150,7 @@ export default function ProjectHubApp() {
         newFileUrl={hub.newFileUrl}
         onClose={() => hub.setSelId(null)}
         onArchive={() => hub.selId && hub.archiveProject(hub.selId)}
+        onDelete={() => hub.selId && hub.deleteProject(hub.selId)}
         onStatusChange={(status) => hub.selId && hub.setStatus(hub.selId, status)}
         onToggleMember={(tid) => hub.selId && hub.toggleMember(hub.selId, tid)}
         onToggleMs={(mid) => hub.selId && hub.toggleMs(hub.selId, mid)}

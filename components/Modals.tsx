@@ -143,6 +143,7 @@ interface ProjectModalProps {
   newFileUrl: string;
   onClose: () => void;
   onArchive: () => void;
+  onDelete: () => void;
   onStatusChange: (status: ProjectStatus) => void;
   onToggleMember: (tid: string) => void;
   onToggleMs: (mid: string) => void;
@@ -170,6 +171,7 @@ export function ProjectModal({
   newFileUrl,
   onClose,
   onArchive,
+  onDelete,
   onStatusChange,
   onToggleMember,
   onToggleMs,
@@ -217,6 +219,12 @@ export function ProjectModal({
                 className="text-xs text-hub-muted px-3 py-1 rounded-[7px] bg-hub-bg font-medium"
               >
                 아카이브
+              </button>
+              <button
+                onClick={onDelete}
+                className="text-xs text-red-700 px-3 py-1 rounded-[7px] bg-red-50 font-medium"
+              >
+                삭제
               </button>
               <button
                 onClick={onClose}

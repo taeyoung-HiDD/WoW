@@ -7,9 +7,10 @@ import { calcProgress, fmt } from "@/lib/utils";
 interface ArchiveViewProps {
   projects: Project[];
   onRestore: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
-export function ArchiveView({ projects, onRestore }: ArchiveViewProps) {
+export function ArchiveView({ projects, onRestore, onDelete }: ArchiveViewProps) {
   return (
     <div className="pt-[26px]">
       <div className="flex items-center gap-2.5 mb-4">
@@ -50,6 +51,12 @@ export function ArchiveView({ projects, onRestore }: ArchiveViewProps) {
                   className="bg-hub-surface text-hub-primary rounded-lg px-4 py-1.5 text-[13px] font-semibold"
                 >
                   복원
+                </button>
+                <button
+                  onClick={() => onDelete(p.id)}
+                  className="bg-red-50 text-red-700 rounded-lg px-4 py-1.5 text-[13px] font-semibold"
+                >
+                  삭제
                 </button>
               </div>
             );

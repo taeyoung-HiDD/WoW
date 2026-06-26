@@ -93,6 +93,15 @@ export async function upsertProject(project: Project): Promise<boolean> {
   return !error;
 }
 
+export async function deleteProjectFromDb(projectId: string): Promise<boolean> {
+  const supabase = getSupabase();
+  if (!supabase) return false;
+
+  const { error } = await supabase.from("projects").delete().eq("id", projectId);
+
+  return !error;
+}
+
 export async function insertProjects(projects: Project[]): Promise<boolean> {
   const supabase = getSupabase();
   if (!supabase || projects.length === 0) return false;

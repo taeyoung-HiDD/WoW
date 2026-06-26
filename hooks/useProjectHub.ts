@@ -8,6 +8,7 @@ import {
   fetchProfile,
   fetchProjects,
   insertProjects,
+  deleteProjectFromDb,
   signIn,
   signOut,
   signUp,
@@ -326,6 +327,19 @@ export function useProjectHub() {
     updateProjects((p) => (p.id !== pid ? p : { ...p, archived: false }));
   };
 
+  const deleteProject = (pid: string) => {
+    if (
+      !window.confirm(
+        "프로젝트를 영구 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다."
+      )
+    ) {
+      return;
+    }
+    setProjects((prev) => prev.filter((p) => p.id !== pid));
+    void deleteProjectFromDb(pid);
+    if (selId === pid) setSelId(null);
+  };
+
   const setNotes = (pid: string, notes: string) => {
     updateProjects((p) => (p.id !== pid ? p : { ...p, notes }));
   };
@@ -473,6 +487,7 @@ export function useProjectHub() {
     toggleMember,
     archiveProject,
     restoreProject,
+    deleteProject,
     setNotes,
     setStatus,
     addMs,
