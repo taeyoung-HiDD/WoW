@@ -5,6 +5,7 @@ import { COLORS } from "@/lib/constants";
 import { INITIAL_PROJECTS } from "@/lib/data";
 import {
   fetchAllProfiles,
+  fetchApprovedMembers,
   fetchProfile,
   fetchProjects,
   insertProjects,
@@ -28,6 +29,7 @@ import type {
 import {
   calcProgress,
   getWeekRange,
+  getNextWeekRange,
   milestoneRangeFmt,
   todayAtMidnight,
 } from "@/lib/utils";
@@ -54,6 +56,7 @@ export function useProjectHub() {
   const [newFileName, setNewFileName] = useState("");
   const [newFileUrl, setNewFileUrl] = useState("");
   const [authUsers, setAuthUsers] = useState<AuthUser[]>([]);
+  const [approvedMembers, setApprovedMembers] = useState<AuthUser[]>([]);
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [authView, setAuthView] = useState<AuthView>("login");
   const [authForm, setAuthForm] = useState({
@@ -85,6 +88,15 @@ export function useProjectHub() {
     }
   }, []);
 
+  const loadApprovedMembers = useCallback(async (user: AuthUser) => {
+    if (user.status !== "approved") {
+      setApprovedMembers([]);
+      return;
+    }
+    const members = await fetchApprovedMembers();
+    setApprovedMembers(members);
+  }, []);
+
   const refreshCurrentUser = useCallback(
     async (userId: string) => {
       const profile = await fetchProfile(userId);
@@ -92,8 +104,9 @@ export function useProjectHub() {
       setCurrentUser(profile);
       await loadProjectsForUser(profile);
       await loadAdminUsers(profile);
+      await loadApprovedMembers(profile);
     },
-    [loadAdminUsers, loadProjectsForUser]
+    [loadAdminUsers, loadApprovedMembers, loadProjectsForUser]
   );
 
   useEffect(() => {
@@ -127,6 +140,7 @@ export function useProjectHub() {
         setCurrentUser(null);
         setProjects([]);
         setAuthUsers([]);
+        setApprovedMembers([]);
         return;
       }
 
@@ -162,6 +176,7 @@ export function useProjectHub() {
 
   const today = useMemo(() => todayAtMidnight(), []);
   const { wStart, wEnd } = useMemo(() => getWeekRange(today), [today]);
+  const { nwStart, nwEnd } = useMemo(() => getNextWeekRange(today), [today]);
 
   const active = useMemo(
     () => projects.filter((p) => !p.archived),
@@ -198,8 +213,33 @@ export function useProjectHub() {
       const d = new Date(ms.due + "T00:00:00");
       return d > today && d <= wEnd;
     });
-    return { kanbanToday, kanbanUpcoming, thisWeekCount: all.length };
-  }, [active, today, wStart, wEnd]);
+
+    const kanbanNextWeek: KanbanItem[] = [];
+    active.forEach((proj) => {
+      proj.milestones.forEach((m, idx) => {
+        const d = new Date(m.due + "T00:00:00");
+        if (d >= nwStart && d <= nwEnd) {
+          kanbanNextWeek.push({
+            ...m,
+            projectId: proj.id,
+            projectName: proj.name,
+            projectColor: proj.color,
+            rangeFmt: milestoneRangeFmt(proj, m, idx),
+          });
+        }
+      });
+    });
+    kanbanNextWeek.sort(
+      (a, b) => new Date(a.due).getTime() - new Date(b.due).getTime()
+    );
+
+    return {
+      kanbanToday,
+      kanbanUpcoming,
+      kanbanNextWeek,
+      taskCount: kanbanToday.length + kanbanUpcoming.length + kanbanNextWeek.length,
+    };
+  }, [active, today, wStart, wEnd, nwStart, nwEnd]);
 
   const signup = async () => {
     if (!authForm.name.trim() || !authForm.email.trim() || !authForm.password.trim()) {
@@ -244,6 +284,7 @@ export function useProjectHub() {
       setCurrentUser(result.user);
       await loadProjectsForUser(result.user);
       await loadAdminUsers(result.user);
+      await loadApprovedMembers(result.user);
     }
     setAuthForm({ name: "", email: "", password: "", error: "" });
   };
@@ -267,6 +308,7 @@ export function useProjectHub() {
       setCurrentUser(result.user);
       await loadProjectsForUser(result.user);
       await loadAdminUsers(result.user);
+      await loadApprovedMembers(result.user);
     }
     setAuthForm({ name: "", email: "", password: "", error: "" });
   };
@@ -276,6 +318,7 @@ export function useProjectHub() {
     setCurrentUser(null);
     setProjects([]);
     setAuthUsers([]);
+    setApprovedMembers([]);
     setAuthView("login");
   };
 
@@ -284,6 +327,10 @@ export function useProjectHub() {
     if (!ok) return;
     const users = await fetchAllProfiles();
     setAuthUsers(users);
+    if (currentUser?.status === "approved") {
+      const members = await fetchApprovedMembers();
+      setApprovedMembers(members);
+    }
   };
 
   const rejectUser = async (uid: string) => {
@@ -306,14 +353,21 @@ export function useProjectHub() {
     );
   };
 
-  const toggleMember = (pid: string, tid: string) => {
+  const addMember = (pid: string, uid: string) => {
     updateProjects((p) => {
       if (p.id !== pid) return p;
       const members = p.members || [];
-      const has = members.includes(tid);
+      if (members.includes(uid)) return p;
+      return { ...p, members: [...members, uid] };
+    });
+  };
+
+  const removeMember = (pid: string, uid: string) => {
+    updateProjects((p) => {
+      if (p.id !== pid) return p;
       return {
         ...p,
-        members: has ? members.filter((m) => m !== tid) : [...members, tid],
+        members: (p.members || []).filter((m) => m !== uid),
       };
     });
   };
@@ -462,6 +516,7 @@ export function useProjectHub() {
     newFileUrl,
     setNewFileUrl,
     authUsers,
+    approvedMembers,
     currentUser,
     authView,
     setAuthView,
@@ -484,7 +539,8 @@ export function useProjectHub() {
     approveUser,
     rejectUser,
     toggleMs,
-    toggleMember,
+    addMember,
+    removeMember,
     archiveProject,
     restoreProject,
     deleteProject,

@@ -19,6 +19,10 @@
   --color-hub-upcoming-border: #c8d4f8;
   --color-hub-upcoming-accent: #4a90d9;
   --color-hub-upcoming-text: #1e40af;
+  --color-hub-nextweek-bg: #f4fbf6;
+  --color-hub-nextweek-border: #c8e6d0;
+  --color-hub-nextweek-accent: #40916c;
+  --color-hub-nextweek-text: #166534;
   --color-hub-success: #40916c;
   --color-hub-overlay: rgba(20, 40, 24, 0.48);
 }

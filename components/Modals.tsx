@@ -1,7 +1,8 @@
 "use client";
 
-import { COLORS, STATUS, TEAM } from "@/lib/constants";
-import type { Project, ProjectStatus } from "@/lib/types";
+import { COLORS, STATUS } from "@/lib/constants";
+import type { Project, ProjectMember, ProjectStatus } from "@/lib/types";
+import { resolveProjectMembers } from "@/lib/utils";
 import { fmt } from "@/lib/utils";
 import { FileIcon } from "./icons";
 
@@ -144,8 +145,10 @@ interface ProjectModalProps {
   onClose: () => void;
   onArchive: () => void;
   onDelete: () => void;
+  onAddMember: (userId: string) => void;
+  onRemoveMember: (userId: string) => void;
+  approvedMembers: ProjectMember[];
   onStatusChange: (status: ProjectStatus) => void;
-  onToggleMember: (tid: string) => void;
   onToggleMs: (mid: string) => void;
   onNotesChange: (notes: string) => void;
   onOpenMsForm: () => void;
@@ -172,8 +175,10 @@ export function ProjectModal({
   onClose,
   onArchive,
   onDelete,
+  onAddMember,
+  onRemoveMember,
+  approvedMembers,
   onStatusChange,
-  onToggleMember,
   onToggleMs,
   onNotesChange,
   onOpenMsForm,
@@ -191,6 +196,10 @@ export function ProjectModal({
 
   const done = project.milestones.filter((m) => m.done).length;
   const total = project.milestones.length;
+  const assigned = resolveProjectMembers(project.members || [], approvedMembers);
+  const available = approvedMembers.filter(
+    (m) => !(project.members || []).includes(m.id)
+  );
 
   return (
     <div
@@ -276,30 +285,68 @@ export function ProjectModal({
             <div className="text-[11px] font-bold text-hub-secondary uppercase tracking-widest mb-2.5">
               담당자
             </div>
-            <div className="flex gap-2 flex-wrap">
-              {TEAM.map((t) => {
-                const assigned = (project.members || []).includes(t.id);
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => onToggleMember(t.id)}
-                    className="flex items-center gap-2 px-3.5 py-1.5 rounded-full transition-all"
-                    style={{
-                      background: assigned ? t.color + "1A" : "#F2F5EF",
-                      border: `1px solid ${assigned ? t.color : "transparent"}`,
-                    }}
+
+            {assigned.length > 0 ? (
+              <div className="flex flex-col gap-1.5 mb-3">
+                {assigned.map((m) => (
+                  <div
+                    key={m.id}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-hub-bg"
                   >
                     <div
-                      className="w-6 h-6 rounded-full text-white text-[10px] font-bold flex items-center justify-center shrink-0"
-                      style={{ background: t.color }}
+                      className="w-7 h-7 rounded-full text-white text-[11px] font-bold flex items-center justify-center shrink-0"
+                      style={{ background: m.color }}
                     >
-                      {t.name[0]}
+                      {m.name[0]}
                     </div>
-                    <span className="text-[13px] text-hub-text">{t.name}</span>
-                  </button>
-                );
-              })}
-            </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[13px] font-medium text-hub-text">{m.name}</div>
+                      <div className="text-[11px] text-hub-muted truncate">{m.email}</div>
+                    </div>
+                    <button
+                      onClick={() => onRemoveMember(m.id)}
+                      className="w-6 h-6 rounded-md bg-red-50 text-red-700 text-sm flex items-center justify-center shrink-0"
+                      title="담당자 제거"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-xs text-hub-muted mb-3">담당자 없음</div>
+            )}
+
+            {available.length > 0 ? (
+              <>
+                <div className="text-[11px] font-bold text-hub-secondary uppercase tracking-widest mb-2">
+                  담당자 추가
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {available.map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => onAddMember(m.id)}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-hub-surface border border-hub-border transition-all hover:border-hub-primary"
+                    >
+                      <div
+                        className="w-5 h-5 rounded-full text-white text-[9px] font-bold flex items-center justify-center shrink-0"
+                        style={{ background: m.color }}
+                      >
+                        {m.name[0]}
+                      </div>
+                      <span className="text-[13px] text-hub-text">{m.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="text-xs text-hub-muted">
+                {approvedMembers.length === 0
+                  ? "가입·승인된 사용자가 없습니다"
+                  : "추가할 수 있는 사용자가 없습니다"}
+              </div>
+            )}
           </div>
 
           <div>

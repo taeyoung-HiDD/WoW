@@ -1,15 +1,20 @@
 "use client";
 
 import { STATUS } from "@/lib/constants";
-import type { Project } from "@/lib/types";
+import type { Project, ProjectMember } from "@/lib/types";
 import { fmt, getMemberNames } from "@/lib/utils";
 
 interface ProjectListViewProps {
   projects: Project[];
   onOpenProject: (id: string) => void;
+  membersLookup: ProjectMember[];
 }
 
-export function ProjectListView({ projects, onOpenProject }: ProjectListViewProps) {
+export function ProjectListView({
+  projects,
+  onOpenProject,
+  membersLookup,
+}: ProjectListViewProps) {
   const sorted = [...projects].sort(
     (a, b) => new Date(a.end).getTime() - new Date(b.end).getTime()
   );
@@ -79,7 +84,7 @@ export function ProjectListView({ projects, onOpenProject }: ProjectListViewProp
                 </div>
               </div>
               <div className="text-xs text-hub-secondary truncate">
-                {getMemberNames(p.members)}
+                {getMemberNames(p.members, membersLookup)}
               </div>
             </div>
           );

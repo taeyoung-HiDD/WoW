@@ -1,16 +1,17 @@
 "use client";
 
 import { MemberAvatars } from "./Avatar";
-import type { Project } from "@/lib/types";
+import type { Project, ProjectMember } from "@/lib/types";
 import { calcProgress, fmt } from "@/lib/utils";
 
 interface ArchiveViewProps {
   projects: Project[];
   onRestore: (id: string) => void;
   onDelete: (id: string) => void;
+  membersLookup: ProjectMember[];
 }
 
-export function ArchiveView({ projects, onRestore, onDelete }: ArchiveViewProps) {
+export function ArchiveView({ projects, onRestore, onDelete, membersLookup }: ArchiveViewProps) {
   return (
     <div className="pt-[26px]">
       <div className="flex items-center gap-2.5 mb-4">
@@ -44,7 +45,7 @@ export function ArchiveView({ projects, onRestore, onDelete }: ArchiveViewProps)
                     {fmt(p.start)} ~ {fmt(p.end)} · {done}/{total} 완료
                   </div>
                 </div>
-                <MemberAvatars memberIds={p.members} />
+                <MemberAvatars memberIds={p.members} membersLookup={membersLookup} />
                 <div className="text-sm font-bold text-hub-secondary">{progress}%</div>
                 <button
                   onClick={() => onRestore(p.id)}

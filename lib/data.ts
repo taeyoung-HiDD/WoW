@@ -12,7 +12,7 @@ export const INITIAL_PROJECTS: Project[] = [
     notes: "",
     files: [],
     archived: false,
-    members: ["tm1", "tm2"],
+    members: [],
     milestones: [
       { id: "p1m1", name: "현재 브랜드 분석", due: "2026-05-15", done: true },
       { id: "p1m2", name: "경쟁사 리서치", due: "2026-05-30", done: true },
@@ -32,7 +32,7 @@ export const INITIAL_PROJECTS: Project[] = [
     notes: "",
     files: [],
     archived: false,
-    members: ["tm2", "tm3"],
+    members: [],
     milestones: [
       { id: "p2m1", name: "요구사항 정의", due: "2026-06-10", done: true },
       { id: "p2m2", name: "와이어프레임 완성", due: "2026-06-27", done: false },
@@ -51,7 +51,7 @@ export const INITIAL_PROJECTS: Project[] = [
     notes: "",
     files: [],
     archived: false,
-    members: ["tm3", "tm4"],
+    members: [],
     milestones: [
       { id: "p3m1", name: "콘텐츠 기획", due: "2026-06-20", done: true },
       { id: "p3m2", name: "크리에이티브 제작", due: "2026-06-26", done: false },
@@ -70,7 +70,7 @@ export const INITIAL_PROJECTS: Project[] = [
     notes: "",
     files: [],
     archived: false,
-    members: ["tm1", "tm5"],
+    members: [],
     milestones: [
       { id: "p4m1", name: "시장 분석", due: "2026-06-10", done: true },
       { id: "p4m2", name: "전략 수립", due: "2026-06-25", done: false },
@@ -89,7 +89,7 @@ export const INITIAL_PROJECTS: Project[] = [
     notes: "",
     files: [],
     archived: false,
-    members: ["tm5", "tm1"],
+    members: [],
     milestones: [
       { id: "p5m1", name: "파트너 리서치", due: "2026-06-15", done: true },
       { id: "p5m2", name: "1차 미팅", due: "2026-06-20", done: true },
@@ -108,7 +108,7 @@ export const INITIAL_PROJECTS: Project[] = [
     notes: "",
     files: [],
     archived: false,
-    members: ["tm4", "tm2"],
+    members: [],
     milestones: [
       { id: "p6m1", name: "커리큘럼 기획", due: "2026-07-10", done: false },
       { id: "p6m2", name: "강사 섭외", due: "2026-07-20", done: false },
@@ -127,7 +127,7 @@ export const INITIAL_PROJECTS: Project[] = [
     notes: "",
     files: [],
     archived: false,
-    members: ["tm3"],
+    members: [],
     milestones: [
       { id: "p7m1", name: "촬영 기획", due: "2026-06-22", done: true },
       { id: "p7m2", name: "스튜디오 예약", due: "2026-06-25", done: false },
@@ -146,7 +146,7 @@ export const INITIAL_PROJECTS: Project[] = [
     notes: "",
     files: [],
     archived: false,
-    members: ["tm2", "tm4"],
+    members: [],
     milestones: [
       { id: "p8m1", name: "주제 선정", due: "2026-06-25", done: false },
       { id: "p8m2", name: "콘텐츠 작성", due: "2026-07-01", done: false },
@@ -164,7 +164,7 @@ export const INITIAL_PROJECTS: Project[] = [
     notes: "",
     files: [],
     archived: false,
-    members: ["tm1", "tm3", "tm5"],
+    members: [],
     milestones: [
       { id: "p9m1", name: "데이터 수집", due: "2026-07-25", done: false },
       { id: "p9m2", name: "초안 작성", due: "2026-08-20", done: false },
@@ -183,7 +183,7 @@ export const INITIAL_PROJECTS: Project[] = [
     notes: "",
     files: [],
     archived: false,
-    members: ["tm1", "tm2", "tm3", "tm4", "tm5"],
+    members: [],
     milestones: [
       { id: "p10m1", name: "장소 섭외", due: "2026-07-05", done: false },
       { id: "p10m2", name: "아젠다 기획", due: "2026-07-12", done: false },

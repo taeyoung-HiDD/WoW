@@ -42,6 +42,13 @@ export interface TeamMember {
   color: string;
 }
 
+export interface ProjectMember {
+  id: string;
+  name: string;
+  email: string;
+  color: string;
+}
+
 export interface AuthUser {
   id: string;
   name: string;

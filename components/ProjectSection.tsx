@@ -1,6 +1,6 @@
 "use client";
 
-import type { Project, ProjectView } from "@/lib/types";
+import type { Project, ProjectMember, ProjectView } from "@/lib/types";
 import { CalendarView } from "./CalendarView";
 import { GanttView } from "./GanttView";
 import { ProjectListView } from "./ProjectListView";
@@ -15,6 +15,7 @@ interface ProjectSectionProps {
   ganttExpanded: Record<string, boolean>;
   onToggleGanttExpand: (id: string) => void;
   today: Date;
+  membersLookup: ProjectMember[];
 }
 
 export function ProjectSection({
@@ -27,6 +28,7 @@ export function ProjectSection({
   ganttExpanded,
   onToggleGanttExpand,
   today,
+  membersLookup,
 }: ProjectSectionProps) {
   const viewBtn = (v: ProjectView, label: string) => (
     <button
@@ -57,7 +59,11 @@ export function ProjectSection({
       </div>
 
       {projectView === "list" && (
-        <ProjectListView projects={projects} onOpenProject={onOpenProject} />
+        <ProjectListView
+          projects={projects}
+          onOpenProject={onOpenProject}
+          membersLookup={membersLookup}
+        />
       )}
       {projectView === "gantt" && (
         <GanttView

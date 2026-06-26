@@ -54,6 +54,20 @@ export async function fetchAllProfiles(): Promise<AuthUser[]> {
   return data.map(profileToAuthUser);
 }
 
+export async function fetchApprovedMembers(): Promise<AuthUser[]> {
+  const supabase = getSupabase();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("status", "approved")
+    .order("name", { ascending: true });
+
+  if (error || !data) return [];
+  return data.map(profileToAuthUser);
+}
+
 export async function updateProfileStatus(
   userId: string,
   status: "approved" | "rejected"

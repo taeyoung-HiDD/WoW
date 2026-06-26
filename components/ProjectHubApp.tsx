@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { ArchiveView } from "@/components/ArchiveView";
 import { AuthScreen, PendingScreen } from "@/components/AuthScreen";
 import { Header } from "@/components/Header";
@@ -11,9 +12,14 @@ import {
 } from "@/components/Modals";
 import { ProjectSection } from "@/components/ProjectSection";
 import { useProjectHub } from "@/hooks/useProjectHub";
+import { toProjectMember, getNextWeekRange } from "@/lib/utils";
 
 export default function ProjectHubApp() {
   const hub = useProjectHub();
+  const projectMembers = useMemo(
+    () => hub.approvedMembers.map(toProjectMember),
+    [hub.approvedMembers]
+  );
 
   if (!hub.hydrated) {
     return (
@@ -85,6 +91,8 @@ export default function ProjectHubApp() {
     day: "numeric",
   });
   const weekStr = `${hub.wStart.getMonth() + 1}/${hub.wStart.getDate()} ~ ${hub.wEnd.getMonth() + 1}/${hub.wEnd.getDate()}`;
+  const { nwStart, nwEnd } = getNextWeekRange(hub.today);
+  const nextWeekStr = `${nwStart.getMonth() + 1}/${nwStart.getDate()} ~ ${nwEnd.getMonth() + 1}/${nwEnd.getDate()}`;
 
   const getProjectMembers = (projectId: string) =>
     hub.projects.find((p) => p.id === projectId)?.members ?? [];
@@ -109,12 +117,15 @@ export default function ProjectHubApp() {
             <KanbanBoard
               kanbanToday={hub.kanbanData.kanbanToday}
               kanbanUpcoming={hub.kanbanData.kanbanUpcoming}
+              kanbanNextWeek={hub.kanbanData.kanbanNextWeek}
               weekStr={weekStr}
+              nextWeekStr={nextWeekStr}
               todayShortStr={todayShortStr}
-              thisWeekCount={hub.kanbanData.thisWeekCount}
+              taskCount={hub.kanbanData.taskCount}
               onOpenProject={hub.openProject}
               onToggleMs={hub.toggleMs}
               getProjectMembers={getProjectMembers}
+              membersLookup={projectMembers}
             />
             <ProjectSection
               projects={hub.active}
@@ -126,6 +137,7 @@ export default function ProjectHubApp() {
               ganttExpanded={hub.ganttExpanded}
               onToggleGanttExpand={hub.toggleGanttExpand}
               today={hub.today}
+              membersLookup={projectMembers}
             />
           </>
         )}
@@ -135,6 +147,7 @@ export default function ProjectHubApp() {
             projects={hub.archived}
             onRestore={hub.restoreProject}
             onDelete={hub.deleteProject}
+            membersLookup={projectMembers}
           />
         )}
       </main>
@@ -151,8 +164,10 @@ export default function ProjectHubApp() {
         onClose={() => hub.setSelId(null)}
         onArchive={() => hub.selId && hub.archiveProject(hub.selId)}
         onDelete={() => hub.selId && hub.deleteProject(hub.selId)}
+        onAddMember={(uid) => hub.selId && hub.addMember(hub.selId, uid)}
+        onRemoveMember={(uid) => hub.selId && hub.removeMember(hub.selId, uid)}
+        approvedMembers={projectMembers}
         onStatusChange={(status) => hub.selId && hub.setStatus(hub.selId, status)}
-        onToggleMember={(tid) => hub.selId && hub.toggleMember(hub.selId, tid)}
         onToggleMs={(mid) => hub.selId && hub.toggleMs(hub.selId, mid)}
         onNotesChange={(notes) => hub.selId && hub.setNotes(hub.selId, notes)}
         onOpenMsForm={() => hub.setShowMsForm(true)}

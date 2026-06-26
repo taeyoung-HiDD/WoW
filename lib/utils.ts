@@ -1,5 +1,32 @@
-import { TEAM } from "./constants";
-import type { Project, Milestone } from "./types";
+import { COLORS } from "./constants";
+import type { AuthUser, Milestone, Project, ProjectMember } from "./types";
+
+export function memberColor(userId: string): string {
+  let hash = 0;
+  for (let i = 0; i < userId.length; i++) {
+    hash = userId.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return COLORS[Math.abs(hash) % COLORS.length];
+}
+
+export function toProjectMember(user: AuthUser): ProjectMember {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    color: memberColor(user.id),
+  };
+}
+
+export function resolveProjectMembers(
+  memberIds: string[],
+  membersLookup: ProjectMember[]
+): ProjectMember[] {
+  const map = new Map(membersLookup.map((m) => [m.id, m]));
+  return memberIds
+    .map((id) => map.get(id))
+    .filter((m): m is ProjectMember => !!m);
+}
 
 export function fmt(
   d: string,
@@ -30,6 +57,15 @@ export function getWeekRange(today: Date) {
   return { wStart, wEnd };
 }
 
+export function getNextWeekRange(today: Date) {
+  const { wEnd } = getWeekRange(today);
+  const nwStart = new Date(wEnd);
+  nwStart.setDate(wEnd.getDate() + 1);
+  const nwEnd = new Date(nwStart);
+  nwEnd.setDate(nwStart.getDate() + 6);
+  return { nwStart, nwEnd };
+}
+
 export function milestoneRangeFmt(
   project: Project,
   milestone: Milestone,
@@ -47,11 +83,13 @@ export function calcProgress(milestones: Milestone[]) {
   return { total, done, progress };
 }
 
-export function getMemberNames(memberIds: string[]): string {
+export function getMemberNames(
+  memberIds: string[],
+  membersLookup: ProjectMember[] = []
+): string {
   return (
-    memberIds
-      .map((id) => TEAM.find((t) => t.id === id)?.name)
-      .filter(Boolean)
+    resolveProjectMembers(memberIds, membersLookup)
+      .map((m) => m.name)
       .join(" · ") || "미지정"
   );
 }

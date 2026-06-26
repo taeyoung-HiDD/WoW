@@ -1,4 +1,5 @@
-import { TEAM } from "@/lib/constants";
+import type { ProjectMember } from "@/lib/types";
+import { resolveProjectMembers } from "@/lib/utils";
 
 interface AvatarProps {
   name: string;
@@ -38,14 +39,14 @@ export function Avatar({
 
 export function MemberAvatars({
   memberIds,
+  membersLookup,
   size = "md",
 }: {
   memberIds: string[];
+  membersLookup: ProjectMember[];
   size?: "sm" | "md";
 }) {
-  const members = memberIds
-    .map((id) => TEAM.find((t) => t.id === id))
-    .filter(Boolean) as (typeof TEAM)[number][];
+  const members = resolveProjectMembers(memberIds, membersLookup);
 
   if (!members.length) return null;
 
