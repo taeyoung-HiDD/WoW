@@ -409,6 +409,27 @@ export function useProjectHub() {
     updateProjects((p) => (p.id !== pid ? p : { ...p, status }));
   };
 
+  const setProjectName = (pid: string, name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    updateProjects((p) => (p.id !== pid ? p : { ...p, name: trimmed }));
+  };
+
+  const setMilestoneName = (pid: string, mid: string, name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    updateProjects((p) =>
+      p.id !== pid
+        ? p
+        : {
+            ...p,
+            milestones: p.milestones.map((m) =>
+              m.id !== mid ? m : { ...m, name: trimmed }
+            ),
+          }
+    );
+  };
+
   const addMs = () => {
     if (!selId || !newMsName.trim() || !newMsDue) return;
     const ms = {
@@ -553,6 +574,8 @@ export function useProjectHub() {
     deleteProject,
     setNotes,
     setStatus,
+    setProjectName,
+    setMilestoneName,
     addMs,
     addFile,
     addProject,

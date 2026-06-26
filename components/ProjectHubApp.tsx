@@ -193,6 +193,10 @@ export default function ProjectHubApp() {
         onRemoveMember={(uid) => hub.selId && hub.removeMember(hub.selId, uid)}
         approvedMembers={projectMembers}
         onStatusChange={(status) => hub.selId && hub.setStatus(hub.selId, status)}
+        onProjectNameChange={(name) => hub.selId && hub.setProjectName(hub.selId, name)}
+        onMilestoneNameChange={(mid, name) =>
+          hub.selId && hub.setMilestoneName(hub.selId, mid, name)
+        }
         onToggleMs={(mid) => hub.selId && hub.toggleMs(hub.selId, mid)}
         onNotesChange={(notes) => hub.selId && hub.setNotes(hub.selId, notes)}
         onOpenMsForm={() => hub.setShowMsForm(true)}

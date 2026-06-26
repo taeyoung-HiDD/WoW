@@ -1,10 +1,55 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { COLORS, STATUS } from "@/lib/constants";
 import type { Project, ProjectMember, ProjectStatus } from "@/lib/types";
 import { resolveProjectMembers } from "@/lib/utils";
 import { fmt } from "@/lib/utils";
 import { FileIcon } from "./icons";
+
+function InlineEditableName({
+  value,
+  onChange,
+  className = "",
+  placeholder = "이름 입력",
+}: {
+  value: string;
+  onChange: (name: string) => void;
+  className?: string;
+  placeholder?: string;
+}) {
+  const [draft, setDraft] = useState(value);
+
+  useEffect(() => {
+    setDraft(value);
+  }, [value]);
+
+  const commit = () => {
+    const trimmed = draft.trim();
+    if (trimmed && trimmed !== value) {
+      onChange(trimmed);
+    } else {
+      setDraft(value);
+    }
+  };
+
+  return (
+    <input
+      value={draft}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") e.currentTarget.blur();
+        if (e.key === "Escape") {
+          setDraft(value);
+          e.currentTarget.blur();
+        }
+      }}
+      placeholder={placeholder}
+      className={`w-full bg-transparent outline-none border border-transparent rounded-md px-1 -mx-1 focus:border-hub-border focus:bg-white ${className}`}
+    />
+  );
+}
 
 interface AddProjectModalProps {
   open: boolean;
@@ -149,6 +194,8 @@ interface ProjectModalProps {
   onRemoveMember: (userId: string) => void;
   approvedMembers: ProjectMember[];
   onStatusChange: (status: ProjectStatus) => void;
+  onProjectNameChange: (name: string) => void;
+  onMilestoneNameChange: (mid: string, name: string) => void;
   onToggleMs: (mid: string) => void;
   onNotesChange: (notes: string) => void;
   onOpenMsForm: () => void;
@@ -179,6 +226,8 @@ export function ProjectModal({
   onRemoveMember,
   approvedMembers,
   onStatusChange,
+  onProjectNameChange,
+  onMilestoneNameChange,
   onToggleMs,
   onNotesChange,
   onOpenMsForm,
@@ -218,8 +267,13 @@ export function ProjectModal({
                 className="w-2.5 h-2.5 rounded-full shrink-0"
                 style={{ background: project.color }}
               />
-              <h2 className="text-[19px] font-bold text-hub-text leading-snug">
-                {project.name}
+              <h2 className="text-[19px] font-bold text-hub-text leading-snug flex-1 min-w-0">
+                <InlineEditableName
+                  value={project.name}
+                  onChange={onProjectNameChange}
+                  className="text-[19px] font-bold text-hub-text leading-snug"
+                  placeholder="프로젝트 이름"
+                />
               </h2>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -397,15 +451,16 @@ export function ProjectModal({
                       )}
                     </button>
                     <div className="flex-1 min-w-0 flex items-center gap-1.5">
-                      <span
+                      <InlineEditableName
+                        value={m.name}
+                        onChange={(name) => onMilestoneNameChange(m.id, name)}
                         className={`text-sm ${
                           m.done
                             ? "font-normal text-hub-muted line-through"
                             : "font-medium text-hub-text"
                         }`}
-                      >
-                        {m.name}
-                      </span>
+                        placeholder="마일스톤 이름"
+                      />
                       {isInProgress && (
                         <span className="text-[10px] font-bold text-hub-today-text bg-amber-100 px-2 py-0.5 rounded-[10px] shrink-0 whitespace-nowrap">
                           진행 중
