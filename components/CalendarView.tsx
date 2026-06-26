@@ -3,10 +3,7 @@
 import { useMemo } from "react";
 import { DAY_HEADERS } from "@/lib/constants";
 import type { Project } from "@/lib/types";
-import {
-  milestoneEnd,
-  milestoneStart,
-} from "@/lib/utils";
+import { milestoneEnd, milestoneStart } from "@/lib/utils";
 
 interface CalendarViewProps {
   projects: Project[];
@@ -40,6 +37,12 @@ interface MilestoneSegment {
   roundRight: boolean;
   showLabel: boolean;
 }
+
+const CELL_GAP = 3;
+const BAR_H = 16;
+const BAR_GAP = 3;
+const DATE_H = 26;
+const CELL_PAD = 6;
 
 function dateInRange(dateStr: string, start: string, end: string): boolean {
   return dateStr >= start && dateStr <= end;
@@ -161,8 +164,8 @@ function buildMilestoneSegments(
           weekIndex,
           startCol,
           endCol,
-          roundLeft: msStart === segStartDate || segStartDate === monthStart,
-          roundRight: msEnd === segEndDate || segEndDate === monthEnd,
+          roundLeft: msStart === segStartDate,
+          roundRight: msEnd === segEndDate,
           showLabel,
         });
       });
@@ -172,9 +175,26 @@ function buildMilestoneSegments(
   return assignLanes(raw);
 }
 
-const BAR_H = 16;
-const BAR_GAP = 3;
-const DATE_H = 28;
+function barRadius(seg: MilestoneSegment, col: number): string {
+  const isStart = col === seg.startCol;
+  const isEnd = col === seg.endCol;
+  const roundL = isStart && seg.roundLeft;
+  const roundR = isEnd && seg.roundRight;
+  if (roundL && roundR) return "4px";
+  if (roundL) return "4px 0 0 4px";
+  if (roundR) return "0 4px 4px 0";
+  return "0";
+}
+
+function barInset(seg: MilestoneSegment, col: number): { left: number; right: number } {
+  const isStart = col === seg.startCol;
+  const isEnd = col === seg.endCol;
+  const bleed = CELL_GAP / 2;
+  return {
+    left: isStart ? CELL_PAD : -bleed,
+    right: isEnd ? CELL_PAD : -bleed,
+  };
+}
 
 export function CalendarView({
   projects,
@@ -254,18 +274,26 @@ export function CalendarView({
       <div className="flex flex-col gap-[3px]">
         {weeks.map((week, weekIndex) => {
           const laneCount = lanesPerWeek.get(weekIndex) ?? 0;
-          const barAreaH = laneCount > 0 ? laneCount * (BAR_H + BAR_GAP) + 4 : 0;
+          const barAreaH =
+            laneCount > 0 ? laneCount * (BAR_H + BAR_GAP) + BAR_GAP : 0;
           const weekSegments = segments.filter((s) => s.weekIndex === weekIndex);
 
           return (
-            <div key={weekIndex} className="relative">
-              <div className="grid grid-cols-7 gap-[3px]">
-                {week.map((day, col) => (
+            <div key={weekIndex} className="grid grid-cols-7 gap-[3px] overflow-hidden">
+              {week.map((day, col) => {
+                const cellSegs = day.hasDate
+                  ? weekSegments.filter(
+                      (s) => col >= s.startCol && col <= s.endCol
+                    )
+                  : [];
+
+                return (
                   <div
                     key={col}
-                    className="rounded-lg p-1.5 overflow-hidden"
+                    className="relative flex flex-col rounded-lg"
                     style={{
-                      minHeight: DATE_H + barAreaH + 8,
+                      minHeight:
+                        DATE_H + (day.hasDate ? barAreaH : 0) + CELL_PAD * 2,
                       background: day.hasDate
                         ? day.isToday
                           ? "#FFFBF2"
@@ -277,70 +305,81 @@ export function CalendarView({
                     }}
                   >
                     {day.hasDate && (
-                      <div
-                        className="w-[22px] h-[22px] rounded-full flex items-center justify-center text-xs shrink-0"
-                        style={{
-                          fontWeight: day.isToday ? 700 : 400,
-                          color: day.isToday
-                            ? "#1A2E1E"
-                            : day.isSat
-                              ? "#4A90D9"
-                              : day.isSun
-                                ? "#D4685A"
-                                : "#1A2E1E",
-                          background: day.isToday ? "#EDC651" : "transparent",
-                        }}
-                      >
-                        {day.date}
-                      </div>
+                      <>
+                        <div
+                          className="shrink-0 flex items-center"
+                          style={{ height: DATE_H, paddingLeft: CELL_PAD }}
+                        >
+                          <div
+                            className="w-[22px] h-[22px] rounded-full flex items-center justify-center text-xs"
+                            style={{
+                              fontWeight: day.isToday ? 700 : 400,
+                              color: day.isToday
+                                ? "#1A2E1E"
+                                : day.isSat
+                                  ? "#4A90D9"
+                                  : day.isSun
+                                    ? "#D4685A"
+                                    : "#1A2E1E",
+                              background: day.isToday ? "#EDC651" : "transparent",
+                            }}
+                          >
+                            {day.date}
+                          </div>
+                        </div>
+
+                        {barAreaH > 0 && (
+                          <div
+                            className="relative shrink-0"
+                            style={{ height: barAreaH, marginBottom: CELL_PAD }}
+                          >
+                            {cellSegs.map((seg) => {
+                              const isStart = col === seg.startCol;
+                              const inset = barInset(seg, col);
+
+                              return (
+                                <div
+                                  key={`${seg.key}-c${col}`}
+                                  className="absolute flex items-center cursor-pointer overflow-hidden"
+                                  style={{
+                                    top: seg.lane * (BAR_H + BAR_GAP),
+                                    left: inset.left,
+                                    right: inset.right,
+                                    height: BAR_H,
+                                    background: seg.done
+                                      ? "#DCFCE7"
+                                      : seg.color + "33",
+                                    borderLeft:
+                                      isStart && seg.roundLeft
+                                        ? `3px solid ${seg.done ? "#40916C" : seg.color}`
+                                        : "none",
+                                    borderRadius: barRadius(seg, col),
+                                    opacity: seg.done ? 0.75 : 1,
+                                    zIndex: 1,
+                                  }}
+                                  title={seg.name}
+                                  onClick={() => onOpenProject(seg.projectId)}
+                                >
+                                  {isStart && seg.showLabel && (
+                                    <span
+                                      className="text-[9px] font-semibold truncate leading-none pl-1 pr-0.5"
+                                      style={{
+                                        color: seg.done ? "#166534" : "#1A2E1E",
+                                      }}
+                                    >
+                                      {seg.name}
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
-                ))}
-              </div>
-
-              {weekSegments.length > 0 && (
-                <div
-                  className="absolute left-0 right-0 grid grid-cols-7 gap-[3px] pointer-events-none px-0"
-                  style={{ top: DATE_H, height: barAreaH }}
-                >
-                  {weekSegments.map((seg) => {
-                    const borderRadius = seg.roundLeft
-                      ? seg.roundRight
-                        ? "5px"
-                        : "5px 0 0 5px"
-                      : seg.roundRight
-                        ? "0 5px 5px 0"
-                        : "0";
-
-                    return (
-                      <div
-                        key={seg.key}
-                        className="pointer-events-auto cursor-pointer flex items-center overflow-hidden px-1"
-                        style={{
-                          gridColumn: `${seg.startCol + 1} / ${seg.endCol + 2}`,
-                          marginTop: seg.lane * (BAR_H + BAR_GAP),
-                          height: BAR_H,
-                          background: seg.done ? "#DCFCE7" : seg.color + "33",
-                          borderLeft: `3px solid ${seg.done ? "#40916C" : seg.color}`,
-                          borderRadius,
-                          opacity: seg.done ? 0.75 : 1,
-                        }}
-                        title={seg.name}
-                        onClick={() => onOpenProject(seg.projectId)}
-                      >
-                        {seg.showLabel && (
-                          <span
-                            className="text-[9px] font-semibold truncate leading-none"
-                            style={{ color: seg.done ? "#166534" : "#1A2E1E" }}
-                          >
-                            {seg.name}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                );
+              })}
             </div>
           );
         })}

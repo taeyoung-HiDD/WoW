@@ -236,19 +236,14 @@ export function useProjectHub() {
 
         const activeToday = isMilestoneActiveOn(m, proj, idx, today);
         const overdue = isMilestoneOverdue(m, proj, idx, today);
+        const overlapsThisWeek = milestoneOverlapsRange(m, proj, idx, wStart, wEnd);
         const overlapsNextWeek = milestoneOverlapsRange(m, proj, idx, nwStart, nwEnd);
-        const msStart = parseDateDay(milestoneStart(m, proj, idx));
-        const msEnd = parseDateDay(milestoneEnd(m));
 
         if (activeToday || overdue) {
           kanbanToday.push(item);
         }
 
-        const endsLaterThisWeek =
-          msEnd.getTime() > today.getTime() && msEnd.getTime() <= wEnd.getTime();
-        const startsLaterThisWeek =
-          msStart.getTime() > today.getTime() && msStart.getTime() <= wEnd.getTime();
-        if (endsLaterThisWeek || startsLaterThisWeek) {
+        if (overlapsThisWeek) {
           kanbanUpcoming.push(item);
         }
 

@@ -216,10 +216,10 @@ export function KanbanBoard({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <KanbanColumn
-            title="이번 주 예정"
+            title="이번 주 진행"
             items={kanbanUpcoming}
             variant="upcoming"
-            emptyLabel="예정된 Task 없음"
+            emptyLabel="이번 주 Task 없음"
             getProjectMembers={getProjectMembers}
             membersLookup={membersLookup}
             onOpenProject={onOpenProject}
