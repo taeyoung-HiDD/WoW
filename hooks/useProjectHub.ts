@@ -66,7 +66,7 @@ export function useProjectHub() {
     error: "",
   });
   const [showUserPanel, setShowUserPanel] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
+  const [hydrated, setHydrated] = useState(true);
   const [authLoading, setAuthLoading] = useState(false);
   const [configError] = useState(() => !isSupabaseConfigured());
 
@@ -111,10 +111,7 @@ export function useProjectHub() {
 
   useEffect(() => {
     const supabase = getSupabase();
-    if (!supabase) {
-      setHydrated(true);
-      return;
-    }
+    if (!supabase) return;
 
     let mounted = true;
 
@@ -141,28 +138,14 @@ export function useProjectHub() {
       }
     );
 
-    const hydrationTimeout = setTimeout(() => {
-      if (mounted) setHydrated(true);
-    }, 3000);
-
-    void supabase.auth
-      .getSession()
-      .then(async ({ data: { session } }) => {
-        if (session?.user && mounted) {
-          await refreshCurrentUser(session.user.id);
-        }
-      })
-      .catch(() => {
-        /* ignore auth init errors */
-      })
-      .finally(() => {
-        clearTimeout(hydrationTimeout);
-        if (mounted) setHydrated(true);
-      });
+    void supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user && mounted) {
+        await refreshCurrentUser(session.user.id);
+      }
+    });
 
     return () => {
       mounted = false;
-      clearTimeout(hydrationTimeout);
       subscription.unsubscribe();
     };
   }, [refreshCurrentUser]);
@@ -264,41 +247,49 @@ export function useProjectHub() {
     }
 
     setAuthLoading(true);
-    const result = await signUp(
-      authForm.name,
-      authForm.email,
-      authForm.password
-    );
-    setAuthLoading(false);
+    try {
+      const result = await signUp(
+        authForm.name,
+        authForm.email,
+        authForm.password
+      );
 
-    if (result.error) {
-      setAuthForm((f) => ({ ...f, error: result.error! }));
-      return;
-    }
+      if (result.error) {
+        setAuthForm((f) => ({ ...f, error: result.error! }));
+        return;
+      }
 
-    if (result.needsEmailConfirm) {
+      if (result.needsEmailConfirm) {
+        setAuthForm((f) => ({
+          ...f,
+          error: "",
+          password: "",
+          name: "",
+          email: "",
+        }));
+        setAuthView("login");
+        setAuthForm((f) => ({
+          ...f,
+          error: "가입이 완료되었습니다. 이메일 인증 후 로그인해주세요.",
+        }));
+        return;
+      }
+
+      if (result.user) {
+        setCurrentUser(result.user);
+        void loadProjectsForUser(result.user);
+        void loadAdminUsers(result.user);
+        void loadApprovedMembers(result.user);
+      }
+      setAuthForm({ name: "", email: "", password: "", error: "" });
+    } catch {
       setAuthForm((f) => ({
         ...f,
-        error: "",
-        password: "",
-        name: "",
-        email: "",
+        error: "가입 요청이 시간 초과되었습니다. 다시 시도해주세요.",
       }));
-      setAuthView("login");
-      setAuthForm((f) => ({
-        ...f,
-        error: "가입이 완료되었습니다. 이메일 인증 후 로그인해주세요.",
-      }));
-      return;
+    } finally {
+      setAuthLoading(false);
     }
-
-    if (result.user) {
-      setCurrentUser(result.user);
-      await loadProjectsForUser(result.user);
-      await loadAdminUsers(result.user);
-      await loadApprovedMembers(result.user);
-    }
-    setAuthForm({ name: "", email: "", password: "", error: "" });
   };
 
   const login = async () => {
@@ -308,21 +299,29 @@ export function useProjectHub() {
     }
 
     setAuthLoading(true);
-    const result = await signIn(authForm.email, authForm.password);
-    setAuthLoading(false);
+    try {
+      const result = await signIn(authForm.email, authForm.password);
 
-    if (result.error) {
-      setAuthForm((f) => ({ ...f, error: result.error! }));
-      return;
-    }
+      if (result.error) {
+        setAuthForm((f) => ({ ...f, error: result.error! }));
+        return;
+      }
 
-    if (result.user) {
-      setCurrentUser(result.user);
-      await loadProjectsForUser(result.user);
-      await loadAdminUsers(result.user);
-      await loadApprovedMembers(result.user);
+      if (result.user) {
+        setCurrentUser(result.user);
+        void loadProjectsForUser(result.user);
+        void loadAdminUsers(result.user);
+        void loadApprovedMembers(result.user);
+      }
+      setAuthForm({ name: "", email: "", password: "", error: "" });
+    } catch {
+      setAuthForm((f) => ({
+        ...f,
+        error: "로그인 요청이 시간 초과되었습니다. 다시 시도해주세요.",
+      }));
+    } finally {
+      setAuthLoading(false);
     }
-    setAuthForm({ name: "", email: "", password: "", error: "" });
   };
 
   const logout = async () => {

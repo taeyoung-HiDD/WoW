@@ -2,6 +2,15 @@ import type { AuthUser, Project } from "@/lib/types";
 import { getSupabase } from "./client";
 import { profileToAuthUser, projectRowToProject, projectToRow } from "./mappers";
 
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      setTimeout(() => reject(new Error(message)), ms);
+    }),
+  ]);
+}
+
 export function mapAuthError(message: string): string {
   const lower = message.toLowerCase();
   if (lower.includes("invalid login credentials")) {
@@ -18,6 +27,9 @@ export function mapAuthError(message: string): string {
   }
   if (lower.includes("email not confirmed")) {
     return "이메일 인증이 필요합니다. 메일함을 확인해주세요";
+  }
+  if (lower.includes("timeout") || lower.includes("timed out")) {
+    return "요청 시간이 초과되었습니다. 네트워크 연결을 확인해주세요";
   }
   return message;
 }
@@ -168,10 +180,14 @@ export async function signIn(
     return { user: null, error: "Supabase가 설정되지 않았습니다" };
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: email.trim().toLowerCase(),
-    password,
-  });
+  const { data, error } = await withTimeout(
+    supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password,
+    }),
+    12000,
+    "timeout"
+  );
 
   if (error) {
     return { user: null, error: mapAuthError(error.message) };
@@ -181,9 +197,16 @@ export async function signIn(
     return { user: null, error: "로그인에 실패했습니다" };
   }
 
-  const profile = await fetchProfile(data.user.id);
+  const profile = await Promise.race([
+    fetchProfile(data.user.id),
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
+  ]);
   if (!profile) {
-    return { user: null, error: "프로필을 불러올 수 없습니다" };
+    return {
+      user: null,
+      error:
+        "프로필을 불러올 수 없습니다. Supabase SQL 마이그레이션(001, 002) 실행 여부를 확인해주세요.",
+    };
   }
 
   return { user: profile, error: null };

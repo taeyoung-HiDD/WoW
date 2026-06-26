@@ -21,14 +21,6 @@ export default function ProjectHubApp() {
     [hub.approvedMembers]
   );
 
-  if (!hub.hydrated) {
-    return (
-      <div className="min-h-screen bg-hub-bg flex items-center justify-center">
-        <div className="text-hub-muted text-sm">로딩 중...</div>
-      </div>
-    );
-  }
-
   if (hub.configError) {
     const isLocal =
       typeof window !== "undefined" &&
