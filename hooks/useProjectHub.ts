@@ -31,6 +31,7 @@ import {
   getWeekRange,
   getNextWeekRange,
   milestoneRangeFmt,
+  milestoneEnd,
   todayAtMidnight,
 } from "@/lib/utils";
 
@@ -52,7 +53,8 @@ export function useProjectHub() {
     color: COLORS[0],
   });
   const [newMsName, setNewMsName] = useState("");
-  const [newMsDue, setNewMsDue] = useState("");
+  const [newMsStart, setNewMsStart] = useState("");
+  const [newMsEnd, setNewMsEnd] = useState("");
   const [newFileName, setNewFileName] = useState("");
   const [newFileUrl, setNewFileUrl] = useState("");
   const [authUsers, setAuthUsers] = useState<AuthUser[]>([]);
@@ -181,7 +183,7 @@ export function useProjectHub() {
     const all: KanbanItem[] = [];
     active.forEach((proj) => {
       proj.milestones.forEach((m, idx) => {
-        const d = new Date(m.due + "T00:00:00");
+        const d = new Date(milestoneEnd(m) + "T00:00:00");
         const isThisWeek = d >= wStart && d <= wEnd;
         const isOverdue = d < wStart && !m.done;
         if (isThisWeek || isOverdue) {
@@ -195,19 +197,19 @@ export function useProjectHub() {
         }
       });
     });
-    all.sort((a, b) => new Date(a.due).getTime() - new Date(b.due).getTime());
+    all.sort((a, b) => new Date(milestoneEnd(a)).getTime() - new Date(milestoneEnd(b)).getTime());
     const kanbanToday = all.filter(
-      (ms) => new Date(ms.due + "T00:00:00") <= today
+      (ms) => new Date(milestoneEnd(ms) + "T00:00:00") <= today
     );
     const kanbanUpcoming = all.filter((ms) => {
-      const d = new Date(ms.due + "T00:00:00");
+      const d = new Date(milestoneEnd(ms) + "T00:00:00");
       return d > today && d <= wEnd;
     });
 
     const kanbanNextWeek: KanbanItem[] = [];
     active.forEach((proj) => {
       proj.milestones.forEach((m, idx) => {
-        const d = new Date(m.due + "T00:00:00");
+        const d = new Date(milestoneEnd(m) + "T00:00:00");
         if (d >= nwStart && d <= nwEnd) {
           kanbanNextWeek.push({
             ...m,
@@ -220,7 +222,7 @@ export function useProjectHub() {
       });
     });
     kanbanNextWeek.sort(
-      (a, b) => new Date(a.due).getTime() - new Date(b.due).getTime()
+      (a, b) => new Date(milestoneEnd(a)).getTime() - new Date(milestoneEnd(b)).getTime()
     );
 
     return {
@@ -430,19 +432,43 @@ export function useProjectHub() {
     );
   };
 
+  const setMilestoneDate = (
+    pid: string,
+    mid: string,
+    field: "start" | "end",
+    value: string
+  ) => {
+    if (!value) return;
+    updateProjects((p) =>
+      p.id !== pid
+        ? p
+        : {
+            ...p,
+            milestones: p.milestones.map((m) => {
+              if (m.id !== mid) return m;
+              const updated = { ...m, [field]: value };
+              const { due: _due, ...rest } = updated;
+              return rest;
+            }),
+          }
+    );
+  };
+
   const addMs = () => {
-    if (!selId || !newMsName.trim() || !newMsDue) return;
+    if (!selId || !newMsName.trim() || !newMsStart || !newMsEnd) return;
     const ms = {
       id: "ms_" + Date.now(),
       name: newMsName.trim(),
-      due: newMsDue,
+      start: newMsStart,
+      end: newMsEnd,
       done: false,
     };
     updateProjects((p) =>
       p.id !== selId ? p : { ...p, milestones: [...p.milestones, ms] }
     );
     setNewMsName("");
-    setNewMsDue("");
+    setNewMsStart("");
+    setNewMsEnd("");
     setShowMsForm(false);
   };
 
@@ -537,8 +563,10 @@ export function useProjectHub() {
     setAddForm,
     newMsName,
     setNewMsName,
-    newMsDue,
-    setNewMsDue,
+    newMsStart,
+    setNewMsStart,
+    newMsEnd,
+    setNewMsEnd,
     newFileName,
     setNewFileName,
     newFileUrl,
@@ -576,6 +604,7 @@ export function useProjectHub() {
     setStatus,
     setProjectName,
     setMilestoneName,
+    setMilestoneDate,
     addMs,
     addFile,
     addProject,

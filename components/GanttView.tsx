@@ -8,7 +8,7 @@ import {
   STATUS,
 } from "@/lib/constants";
 import type { Project } from "@/lib/types";
-import { calcProgress } from "@/lib/utils";
+import { calcProgress, milestoneEnd, milestoneStart } from "@/lib/utils";
 
 interface GanttViewProps {
   projects: Project[];
@@ -214,7 +214,7 @@ export function GanttView({
                           {p.milestones.map((m) => {
                             const mx =
                               Math.ceil(
-                                (new Date(m.due + "T00:00:00").getTime() - gMinD.getTime()) /
+                                (new Date(milestoneEnd(m) + "T00:00:00").getTime() - gMinD.getTime()) /
                                   86400000
                               ) * GANTT_DAY_W;
                             return (
@@ -237,12 +237,11 @@ export function GanttView({
                     </div>
 
                     {isExpanded &&
-                      p.milestones.map((m, mi, arr) => {
-                        const prevM = mi > 0 ? arr[mi - 1] : null;
+                      p.milestones.map((m, mi) => {
                         const msSD = new Date(
-                          (prevM ? prevM.due : p.start) + "T00:00:00"
+                          milestoneStart(m, p, mi) + "T00:00:00"
                         );
-                        const msED = new Date(m.due + "T00:00:00");
+                        const msED = new Date(milestoneEnd(m) + "T00:00:00");
                         const msBL =
                           Math.max(
                             0,

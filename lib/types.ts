@@ -11,8 +11,11 @@ export type UserStatus = "approved" | "pending" | "rejected";
 export interface Milestone {
   id: string;
   name: string;
-  due: string;
+  start: string;
+  end: string;
   done: boolean;
+  /** @deprecated legacy field — use end */
+  due?: string;
 }
 
 export interface ProjectFile {

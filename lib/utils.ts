@@ -66,14 +66,48 @@ export function getNextWeekRange(today: Date) {
   return { nwStart, nwEnd };
 }
 
+export function milestoneEnd(milestone: Milestone): string {
+  return milestone.end || milestone.due || "";
+}
+
+export function milestoneStart(
+  milestone: Milestone,
+  project: Project,
+  index: number
+): string {
+  if (milestone.start) return milestone.start;
+  const prevMs = index > 0 ? project.milestones[index - 1] : null;
+  return prevMs ? milestoneEnd(prevMs) : project.start;
+}
+
+export function normalizeMilestone(
+  milestone: Milestone,
+  project: Project,
+  index: number
+): Milestone {
+  const end = milestoneEnd(milestone);
+  const start = milestoneStart({ ...milestone, end }, project, index);
+  const { due: _due, ...rest } = milestone;
+  return { ...rest, start, end };
+}
+
+export function normalizeProjectMilestones(project: Project): Project {
+  return {
+    ...project,
+    milestones: project.milestones.map((m, i) =>
+      normalizeMilestone(m, project, i)
+    ),
+  };
+}
+
 export function milestoneRangeFmt(
   project: Project,
   milestone: Milestone,
   index: number
 ): string {
-  const prevMs = index > 0 ? project.milestones[index - 1] : null;
-  const msStart = prevMs ? prevMs.due : project.start;
-  return `${fmt(msStart, { month: "short", day: "numeric" })} ~ ${fmt(milestone.due, { month: "short", day: "numeric" })}`;
+  const msStart = milestoneStart(milestone, project, index);
+  const msEnd = milestoneEnd(milestone);
+  return `${fmt(msStart, { month: "short", day: "numeric" })} ~ ${fmt(msEnd, { month: "short", day: "numeric" })}`;
 }
 
 export function calcProgress(milestones: Milestone[]) {

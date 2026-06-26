@@ -2,7 +2,7 @@
 
 import { STATUS } from "@/lib/constants";
 import type { Project, ProjectMember } from "@/lib/types";
-import { fmt, getMemberNames } from "@/lib/utils";
+import { fmt, getMemberNames, milestoneEnd, milestoneStart } from "@/lib/utils";
 
 interface ProjectListViewProps {
   projects: Project[];
@@ -36,7 +36,7 @@ export function ProjectListView({
           const sc = STATUS[p.status];
           const notDone = p.milestones
             .filter((m) => !m.done)
-            .sort((a, b) => a.due.localeCompare(b.due));
+            .sort((a, b) => milestoneEnd(a).localeCompare(milestoneEnd(b)));
           const cur = notDone[0];
           const nxt = notDone[1];
 
@@ -72,7 +72,7 @@ export function ProjectListView({
                   {cur?.name ?? "—"}
                 </div>
                 <div className="text-[10px] text-hub-muted mt-px">
-                  {cur ? fmt(cur.due) : ""}
+                  {cur ? `${fmt(cur.start)} ~ ${fmt(cur.end)}` : ""}
                 </div>
               </div>
               <div className="min-w-0">
@@ -80,7 +80,7 @@ export function ProjectListView({
                   {nxt?.name ?? "—"}
                 </div>
                 <div className="text-[10px] text-hub-muted mt-px">
-                  {nxt ? fmt(nxt.due) : ""}
+                  {nxt ? `${fmt(nxt.start)} ~ ${fmt(nxt.end)}` : ""}
                 </div>
               </div>
               <div className="text-xs text-hub-secondary truncate">

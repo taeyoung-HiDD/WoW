@@ -183,7 +183,8 @@ export default function ProjectHubApp() {
         showMsForm={hub.showMsForm}
         showFileForm={hub.showFileForm}
         newMsName={hub.newMsName}
-        newMsDue={hub.newMsDue}
+        newMsStart={hub.newMsStart}
+        newMsEnd={hub.newMsEnd}
         newFileName={hub.newFileName}
         newFileUrl={hub.newFileUrl}
         onClose={() => hub.setSelId(null)}
@@ -197,17 +198,29 @@ export default function ProjectHubApp() {
         onMilestoneNameChange={(mid, name) =>
           hub.selId && hub.setMilestoneName(hub.selId, mid, name)
         }
+        onMilestoneDateChange={(mid, field, value) =>
+          hub.selId && hub.setMilestoneDate(hub.selId, mid, field, value)
+        }
         onToggleMs={(mid) => hub.selId && hub.toggleMs(hub.selId, mid)}
         onNotesChange={(notes) => hub.selId && hub.setNotes(hub.selId, notes)}
-        onOpenMsForm={() => hub.setShowMsForm(true)}
+        onOpenMsForm={() => {
+          const p = hub.selProj;
+          if (p) {
+            const last = p.milestones[p.milestones.length - 1];
+            hub.setNewMsStart(last ? last.end : p.start);
+          }
+          hub.setShowMsForm(true);
+        }}
         onCancelMsForm={() => {
           hub.setShowMsForm(false);
           hub.setNewMsName("");
-          hub.setNewMsDue("");
+          hub.setNewMsStart("");
+          hub.setNewMsEnd("");
         }}
         onSubmitMs={hub.addMs}
         onMsNameChange={hub.setNewMsName}
-        onMsDueChange={hub.setNewMsDue}
+        onMsStartChange={hub.setNewMsStart}
+        onMsEndChange={hub.setNewMsEnd}
         onOpenFileForm={() => hub.setShowFileForm(true)}
         onCancelFileForm={() => {
           hub.setShowFileForm(false);

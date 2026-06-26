@@ -1,4 +1,5 @@
-import type { AuthUser, Milestone, Project, ProjectFile } from "@/lib/types";
+import type { AuthUser, Project, ProjectFile } from "@/lib/types";
+import { normalizeProjectMilestones } from "@/lib/utils";
 import type { Database } from "./database.types";
 
 type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
@@ -22,7 +23,7 @@ export function profileToAuthUser(row: ProfileRow): AuthUser {
 }
 
 export function projectRowToProject(row: ProjectRow): Project {
-  return {
+  return normalizeProjectMilestones({
     id: row.id,
     name: row.name,
     desc: row.description,
@@ -34,24 +35,25 @@ export function projectRowToProject(row: ProjectRow): Project {
     files: (row.files as unknown as ProjectFile[]) ?? [],
     archived: row.archived,
     members: row.members ?? [],
-    milestones: (row.milestones as unknown as Milestone[]) ?? [],
-  };
+    milestones: (row.milestones as unknown as Project["milestones"]) ?? [],
+  });
 }
 
 export function projectToRow(project: Project): Database["public"]["Tables"]["projects"]["Insert"] {
+  const normalized = normalizeProjectMilestones(project);
   return {
-    id: project.id,
-    name: project.name,
-    description: project.desc,
-    start_date: project.start,
-    end_date: project.end,
-    status: project.status,
-    color: project.color,
-    notes: project.notes,
-    archived: project.archived,
-    members: project.members,
-    milestones: project.milestones as unknown as Database["public"]["Tables"]["projects"]["Insert"]["milestones"],
-    files: project.files as unknown as Database["public"]["Tables"]["projects"]["Insert"]["files"],
+    id: normalized.id,
+    name: normalized.name,
+    description: normalized.desc,
+    start_date: normalized.start,
+    end_date: normalized.end,
+    status: normalized.status,
+    color: normalized.color,
+    notes: normalized.notes,
+    archived: normalized.archived,
+    members: normalized.members,
+    milestones: normalized.milestones as unknown as Database["public"]["Tables"]["projects"]["Insert"]["milestones"],
+    files: normalized.files as unknown as Database["public"]["Tables"]["projects"]["Insert"]["files"],
     updated_at: new Date().toISOString(),
   };
 }

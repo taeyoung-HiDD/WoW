@@ -1,6 +1,13 @@
-import type { Project } from "./types";
+import type { Milestone, Project } from "./types";
+import { normalizeProjectMilestones } from "./utils";
 
-export const INITIAL_PROJECTS: Project[] = [
+type LegacyMilestone = Omit<Milestone, "start" | "end"> & {
+  due: string;
+  start?: string;
+  end?: string;
+};
+
+const RAW_PROJECTS: (Omit<Project, "milestones"> & { milestones: LegacyMilestone[] })[] = [
   {
     id: "p1",
     name: "브랜드 리뉴얼",
@@ -191,3 +198,10 @@ export const INITIAL_PROJECTS: Project[] = [
     ],
   },
 ];
+
+export const INITIAL_PROJECTS: Project[] = RAW_PROJECTS.map((project) =>
+  normalizeProjectMilestones({
+    ...project,
+    milestones: project.milestones as Milestone[],
+  })
+);

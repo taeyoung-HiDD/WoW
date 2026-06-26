@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { COLORS, STATUS } from "@/lib/constants";
 import type { Project, ProjectMember, ProjectStatus } from "@/lib/types";
-import { resolveProjectMembers } from "@/lib/utils";
+import { resolveProjectMembers, milestoneStart, milestoneEnd } from "@/lib/utils";
 import { fmt } from "@/lib/utils";
 import { FileIcon } from "./icons";
 
@@ -184,7 +184,8 @@ interface ProjectModalProps {
   showMsForm: boolean;
   showFileForm: boolean;
   newMsName: string;
-  newMsDue: string;
+  newMsStart: string;
+  newMsEnd: string;
   newFileName: string;
   newFileUrl: string;
   onClose: () => void;
@@ -196,13 +197,15 @@ interface ProjectModalProps {
   onStatusChange: (status: ProjectStatus) => void;
   onProjectNameChange: (name: string) => void;
   onMilestoneNameChange: (mid: string, name: string) => void;
+  onMilestoneDateChange: (mid: string, field: "start" | "end", value: string) => void;
   onToggleMs: (mid: string) => void;
   onNotesChange: (notes: string) => void;
   onOpenMsForm: () => void;
   onCancelMsForm: () => void;
   onSubmitMs: () => void;
   onMsNameChange: (v: string) => void;
-  onMsDueChange: (v: string) => void;
+  onMsStartChange: (v: string) => void;
+  onMsEndChange: (v: string) => void;
   onOpenFileForm: () => void;
   onCancelFileForm: () => void;
   onSubmitFile: () => void;
@@ -216,7 +219,8 @@ export function ProjectModal({
   showMsForm,
   showFileForm,
   newMsName,
-  newMsDue,
+  newMsStart,
+  newMsEnd,
   newFileName,
   newFileUrl,
   onClose,
@@ -228,13 +232,15 @@ export function ProjectModal({
   onStatusChange,
   onProjectNameChange,
   onMilestoneNameChange,
+  onMilestoneDateChange,
   onToggleMs,
   onNotesChange,
   onOpenMsForm,
   onCancelMsForm,
   onSubmitMs,
   onMsNameChange,
-  onMsDueChange,
+  onMsStartChange,
+  onMsEndChange,
   onOpenFileForm,
   onCancelFileForm,
   onSubmitFile,
@@ -408,19 +414,18 @@ export function ProjectModal({
               마일스톤
             </div>
             <div className="flex flex-col gap-1">
-              {project.milestones.map((m, idx, arr) => {
-                const prevMs = idx > 0 ? arr[idx - 1] : null;
+              {project.milestones.map((m, idx) => {
                 const msStart = new Date(
-                  (prevMs ? prevMs.due : project.start) + "T00:00:00"
+                  milestoneStart(m, project, idx) + "T00:00:00"
                 );
-                const msDue = new Date(m.due + "T00:00:00");
-                const isInProgress = !m.done && today >= msStart && today <= msDue;
-                const isOverdue = !m.done && msDue < today;
+                const msEnd = new Date(milestoneEnd(m) + "T00:00:00");
+                const isInProgress = !m.done && today >= msStart && today <= msEnd;
+                const isOverdue = !m.done && msEnd < today;
 
                 return (
                   <div
                     key={m.id}
-                    className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg"
+                    className="flex items-center gap-2 px-2.5 py-2 rounded-lg flex-wrap sm:flex-nowrap"
                     style={{
                       background: m.done
                         ? "#F0FDF4"
@@ -467,12 +472,26 @@ export function ProjectModal({
                         </span>
                       )}
                     </div>
-                    <span
-                      className="text-xs shrink-0"
-                      style={{ color: m.done ? "#8FAE94" : isOverdue ? "#B91C1C" : "#8FAE94" }}
-                    >
-                      {fmt(m.due)}
-                    </span>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <input
+                        type="date"
+                        value={m.start}
+                        onChange={(e) => onMilestoneDateChange(m.id, "start", e.target.value)}
+                        className="border border-hub-border rounded-md px-1.5 py-1 text-[11px] outline-none bg-white w-[118px]"
+                        title="시작일"
+                      />
+                      <span className="text-[10px] text-hub-muted">~</span>
+                      <input
+                        type="date"
+                        value={m.end}
+                        onChange={(e) => onMilestoneDateChange(m.id, "end", e.target.value)}
+                        className="border border-hub-border rounded-md px-1.5 py-1 text-[11px] outline-none bg-white w-[118px]"
+                        style={{
+                          color: m.done ? "#8FAE94" : isOverdue ? "#B91C1C" : "#5A6B5E",
+                        }}
+                        title="종료일"
+                      />
+                    </div>
                   </div>
                 );
               })}
@@ -488,9 +507,18 @@ export function ProjectModal({
                 />
                 <input
                   type="date"
-                  value={newMsDue}
-                  onChange={(e) => onMsDueChange(e.target.value)}
+                  value={newMsStart}
+                  onChange={(e) => onMsStartChange(e.target.value)}
                   className="border border-hub-border rounded-lg px-2.5 py-2 text-[13px] outline-none bg-white"
+                  title="시작일"
+                />
+                <span className="text-xs text-hub-muted">~</span>
+                <input
+                  type="date"
+                  value={newMsEnd}
+                  onChange={(e) => onMsEndChange(e.target.value)}
+                  className="border border-hub-border rounded-lg px-2.5 py-2 text-[13px] outline-none bg-white"
+                  title="종료일"
                 />
                 <button
                   onClick={onSubmitMs}

@@ -2,6 +2,7 @@
 
 import { DAY_HEADERS } from "@/lib/constants";
 import type { Project } from "@/lib/types";
+import { milestoneEnd } from "@/lib/utils";
 
 interface CalendarViewProps {
   projects: Project[];
@@ -54,7 +55,7 @@ export function CalendarView({
 
     projects.forEach((proj) => {
       proj.milestones.forEach((m) => {
-        if (m.due === ds) {
+        if (milestoneEnd(m) === ds) {
           dayMs.push({
             id: m.id,
             name: m.name,
