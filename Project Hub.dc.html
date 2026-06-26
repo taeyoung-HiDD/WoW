@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html, body { height:100%; background:#F2F5EF; }
+    body { font-family:'Noto Sans KR',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+    button { cursor:pointer; border:none; background:none; font-family:inherit; }
+    input, textarea { font-family:inherit; }
+    a { text-decoration:none; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+    ::-webkit-scrollbar { width:5px; height:5px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:#C3D9BB; border-radius:3px; }
+  </style>
+</helmet>
+
+<div>
+
+  <!-- ===== 인증 화면 ===== -->
+  <sc-if value="{{ showAuthScreen }}" hint-placeholder-val="{{ false }}">
+    <div style="min-height:100vh;background:#F2F5EF;display:flex;align-items:center;justify-content:center;padding:24px">
+      <div style="background:white;border-radius:20px;padding:40px;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(26,46,30,0.12)">
+        <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:30px">
+          <div style="width:52px;height:52px;background:#2D6A4F;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:12px">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="9.5" height="9.5" rx="2.5" fill="white" opacity="0.9"></rect><rect x="15.5" y="3" width="9.5" height="9.5" rx="2.5" fill="white" opacity="0.55"></rect><rect x="3" y="15.5" width="9.5" height="9.5" rx="2.5" fill="white" opacity="0.55"></rect><rect x="15.5" y="15.5" width="9.5" height="9.5" rx="2.5" fill="white" opacity="0.9"></rect></svg>
+          </div>
+          <div style="font-size:21px;font-weight:700;color:#1A2E1E;letter-spacing:-0.4px">프로젝트 허브</div>
+          <div style="font-size:13px;color:#8FAE94;margin-top:4px">소규모 팀 협업 대시보드</div>
+        </div>
+
+        <!-- 로그인 -->
+        <sc-if value="{{ isLoginView }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="font-size:17px;font-weight:700;color:#1A2E1E;margin-bottom:18px">로그인</div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:14px">
+              <div>
+                <label style="font-size:12px;font-weight:600;color:#4A6A50;display:block;margin-bottom:5px">이메일</label>
+                <input type="email" value="{{ authForm.email }}" onChange="{{ onAuthEmail }}" placeholder="이메일 주소 입력" style="width:100%;border:1px solid #D3E8CA;border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:#fff"/>
+              </div>
+              <div>
+                <label style="font-size:12px;font-weight:600;color:#4A6A50;display:block;margin-bottom:5px">비밀번호</label>
+                <input type="password" value="{{ authForm.password }}" onChange="{{ onAuthPassword }}" placeholder="비밀번호 입력" style="width:100%;border:1px solid #D3E8CA;border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:#fff"/>
+              </div>
+            </div>
+            <sc-if value="{{ hasAuthError }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:13px;color:#B91C1C;background:#FEE2E2;border-radius:8px;padding:9px 12px;margin-bottom:14px">{{ authForm.error }}</div>
+            </sc-if>
+            <button onClick="{{ submitLogin }}" style="width:100%;background:#2D6A4F;color:white;border-radius:10px;padding:13px;font-size:15px;font-weight:600">로그인</button>
+            <div style="text-align:center;margin-top:18px;font-size:13px;color:#8FAE94">
+              계정이 없으신가요?
+              <button onClick="{{ goToSignup }}" style="color:#2D6A4F;font-weight:600;font-size:13px;margin-left:4px">가입 신청 →</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- 가입 신청 -->
+        <sc-if value="{{ isSignupView }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="font-size:17px;font-weight:700;color:#1A2E1E;margin-bottom:18px">가입 신청</div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:14px">
+              <div>
+                <label style="font-size:12px;font-weight:600;color:#4A6A50;display:block;margin-bottom:5px">이름</label>
+                <input value="{{ authForm.name }}" onChange="{{ onAuthName }}" placeholder="이름 입력" style="width:100%;border:1px solid #D3E8CA;border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:#fff"/>
+              </div>
+              <div>
+                <label style="font-size:12px;font-weight:600;color:#4A6A50;display:block;margin-bottom:5px">이메일</label>
+                <input type="email" value="{{ authForm.email }}" onChange="{{ onAuthEmail }}" placeholder="이메일 주소 입력" style="width:100%;border:1px solid #D3E8CA;border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:#fff"/>
+              </div>
+              <div>
+                <label style="font-size:12px;font-weight:600;color:#4A6A50;display:block;margin-bottom:5px">비밀번호</label>
+                <input type="password" value="{{ authForm.password }}" onChange="{{ onAuthPassword }}" placeholder="비밀번호 (6자 이상)" style="width:100%;border:1px solid #D3E8CA;border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:#fff"/>
+              </div>
+            </div>
+            <sc-if value="{{ hasAuthError }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:13px;color:#B91C1C;background:#FEE2E2;border-radius:8px;padding:9px 12px;margin-bottom:14px">{{ authForm.error }}</div>
+            </sc-if>
+            <button onClick="{{ submitSignup }}" style="width:100%;background:#2D6A4F;color:white;border-radius:10px;padding:13px;font-size:15px;font-weight:600">가입 신청</button>
+            <div style="text-align:center;margin-top:16px;font-size:13px;color:#8FAE94">
+              이미 계정이 있으신가요?
+              <button onClick="{{ goToLogin }}" style="color:#2D6A4F;font-weight:600;font-size:13px;margin-left:4px">로그인 →</button>
+            </div>
+            <div style="margin-top:16px;background:#F2F5EF;border-radius:8px;padding:11px 14px;font-size:12px;color:#4A6A50;line-height:1.6;text-align:center">
+              💡 첫 번째 가입자는 자동으로 관리자가 됩니다
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===== 승인 대기 화면 ===== -->
+  <sc-if value="{{ showPendingScreen }}" hint-placeholder-val="{{ false }}">
+    <div style="min-height:100vh;background:#F2F5EF;display:flex;align-items:center;justify-content:center;padding:24px">
+      <div style="background:white;border-radius:20px;padding:52px 40px;width:100%;max-width:440px;text-align:center;box-shadow:0 8px 40px rgba(26,46,30,0.12)">
+        <div style="width:68px;height:68px;background:#FEF3C7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 22px">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="12.5" stroke="#E8A838" stroke-width="2"></circle><path d="M15 7v8l4.5 4.5" stroke="#E8A838" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        </div>
+        <h2 style="font-size:21px;font-weight:700;color:#1A2E1E;margin-bottom:10px">승인 대기 중</h2>
+        <p style="font-size:14px;color:#4A6A50;font-weight:500;margin-bottom:6px">{{ currentUserName }}님, 가입 신청이 완료되었습니다.</p>
+        <p style="font-size:13px;color:#8FAE94;line-height:1.8;margin-bottom:30px">관리자가 검토 후 승인하면<br/>대시보드에 접속할 수 있습니다.</p>
+        <button onClick="{{ handleLogout }}" style="background:#ECF2E8;color:#2D6A4F;border-radius:10px;padding:11px 28px;font-size:14px;font-weight:600">로그아웃</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===== 메인 앱 ===== -->
+  <sc-if value="{{ showAppScreen }}" hint-placeholder-val="{{ true }}">
+    <div style="min-height:100vh;background:#F2F5EF;color:#1A2E1E">
+
+      <!-- HEADER -->
+      <header style="position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);backdrop-filter:blur(10px);border-bottom:1px solid #D3E8CA;height:58px;display:flex;align-items:center;padding:0 28px;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+          <div style="width:34px;height:34px;background:#2D6A4F;border-radius:9px;display:flex;align-items:center;justify-content:center">
+            <svg width="19" height="19" viewBox="0 0 19 19" fill="none"><rect x="2" y="2" width="6.5" height="6.5" rx="1.8" fill="white" opacity="0.9"></rect><rect x="10.5" y="2" width="6.5" height="6.5" rx="1.8" fill="white" opacity="0.55"></rect><rect x="2" y="10.5" width="6.5" height="6.5" rx="1.8" fill="white" opacity="0.55"></rect><rect x="10.5" y="10.5" width="6.5" height="6.5" rx="1.8" fill="white" opacity="0.9"></rect></svg>
+          </div>
+          <span style="font-size:16px;font-weight:700;letter-spacing:-0.4px;color:#1A2E1E">프로젝트 허브</span>
+        </div>
+        <div style="display:flex;gap:2px;background:#ECF2E8;border-radius:10px;padding:4px;flex-shrink:0">
+          <button onClick="{{ goToDashboard }}" style="{{ dashTabStyle }}">대시보드</button>
+          <button onClick="{{ goToArchive }}" style="{{ archTabStyle }}">아카이브</button>
+        </div>
+        <div style="flex:1"></div>
+        <div style="font-size:13px;color:#4A6A50;background:#ECF2E8;padding:5px 14px;border-radius:20px;flex-shrink:0">{{ todayStr }}</div>
+        <!-- 회원 관리 (관리자만) -->
+        <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ openUserPanel }}" style="{{ adminBtnStyle }}">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="4.5" cy="4" r="2.5" stroke="currentColor" stroke-width="1.4"></circle><circle cx="10" cy="4" r="2.5" stroke="currentColor" stroke-width="1.4"></circle><path d="M1 12c0-2 1.6-3.5 3.5-3.5S8 10 8 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path><path d="M9.5 8.5c1.2.4 2.1 1.6 2.1 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg>
+            회원 관리
+            <sc-if value="{{ hasPending }}" hint-placeholder-val="{{ false }}">
+              <span style="background:#B91C1C;color:white;font-size:10px;font-weight:700;padding:1px 5px;border-radius:8px">{{ pendingCount }}</span>
+            </sc-if>
+          </button>
+        </sc-if>
+        <!-- 유저 정보 + 로그아웃 -->
+        <div style="display:flex;align-items:center;gap:8px;background:#F2F5EF;border-radius:20px;padding:5px 8px 5px 14px;flex-shrink:0">
+          <span style="font-size:13px;font-weight:500;color:#1A2E1E">{{ currentUserName }}</span>
+          <button onClick="{{ handleLogout }}" style="font-size:11px;color:#8FAE94;background:white;border-radius:12px;padding:3px 9px;font-weight:500">로그아웃</button>
+        </div>
+        <button onClick="{{ openAddProject }}" style="background:#2D6A4F;color:white;border-radius:10px;padding:0 18px;height:36px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;flex-shrink:0">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5v10M1.5 6.5h10" stroke="white" stroke-width="2" stroke-linecap="round"></path></svg>
+          새 프로젝트
+        </button>
+      </header>
+
+      <!-- MAIN -->
+      <main style="padding:0 28px 64px;max-width:1440px;margin:0 auto">
+
+        <!-- 대시보드 -->
+        <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+          <!-- 이번 주 칸반 -->
+          <div style="padding:26px 0 0">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+              <span style="font-size:11px;font-weight:700;color:#4A6A50;letter-spacing:0.1em;text-transform:uppercase">이번 주 할 일</span>
+              <span style="font-size:12px;color:#8FAE94">{{ weekStr }}</span>
+              <div style="flex:1;height:1px;background:#D3E8CA"></div>
+              <span style="font-size:12px;color:#8FAE94">{{ thisWeekCount }}개 마일스톤</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+              <!-- 오늘 -->
+              <div style="background:#FFFBF2;border-radius:12px;padding:12px;border:1px solid #F5E6C0">
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
+                  <div style="width:7px;height:7px;border-radius:50%;background:#E8A838;flex-shrink:0"></div>
+                  <span style="font-size:12px;font-weight:700;color:#92400E">오늘 진행 중</span>
+                  <span style="font-size:11px;color:#B8953A">{{ todayShortStr }}</span>
+                  <div style="flex:1"></div>
+                  <span style="font-size:11px;font-weight:600;color:#92400E;background:#FEF3C7;padding:1px 7px;border-radius:10px">{{ kanbanTodayCount }}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px;min-height:120px">
+                  <sc-for list="{{ kanbanToday }}" as="ms" hint-placeholder-count="2">
+                    <div style="background:white;border-radius:8px;border:1px solid #F5E6C0;padding:9px 10px;display:flex;align-items:center;gap:8px">
+                      <div style="flex:1;min-width:0;cursor:pointer" onClick="{{ ms.onOpen }}">
+                        <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
+                          <div style="{{ ms.dotStyle }}"></div>
+                          <span style="font-size:12px;color:#8FAE94;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ ms.projectName }}</span>
+                        </div>
+                        <div style="{{ ms.nameStyle }}">{{ ms.name }}</div>
+                        <div style="font-size:10px;color:#B8953A;margin-top:3px">{{ ms.rangeFmt }}</div>
+                      </div>
+                      <sc-if value="{{ ms.hasAvatars }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;align-items:center;flex-shrink:0">
+                          <sc-for list="{{ ms.avatars }}" as="av" hint-placeholder-count="0">
+                            <div style="{{ av.style }}" title="{{ av.name }}">{{ av.initial }}</div>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+                      <button onClick="{{ ms.onToggle }}" style="{{ ms.checkStyle }}">
+                        <sc-if value="{{ ms.done }}" hint-placeholder-val="{{ false }}">
+                          <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1 4.5l2.5 2.5 4.5-4.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </sc-if>
+                      </button>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ noKanbanToday }}" hint-placeholder-val="{{ false }}">
+                    <div style="text-align:center;padding:28px 0;font-size:12px;color:#C8AC78">진행 중인 Task 없음</div>
+                  </sc-if>
+                </div>
+              </div>
+              <!-- 이번 주 예정 -->
+              <div style="background:#F5F7FF;border-radius:12px;padding:12px;border:1px solid #C8D4F8">
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
+                  <div style="width:7px;height:7px;border-radius:50%;background:#4A90D9;flex-shrink:0"></div>
+                  <span style="font-size:12px;font-weight:700;color:#1E40AF">이번 주 예정</span>
+                  <div style="flex:1"></div>
+                  <span style="font-size:11px;font-weight:600;color:#1E40AF;background:#DBEAFE;padding:1px 7px;border-radius:10px">{{ kanbanUpcomingCount }}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px;min-height:120px">
+                  <sc-for list="{{ kanbanUpcoming }}" as="ms" hint-placeholder-count="2">
+                    <div style="background:white;border-radius:8px;border:1px solid #C8D4F8;padding:9px 10px;display:flex;align-items:center;gap:8px">
+                      <div style="flex:1;min-width:0;cursor:pointer" onClick="{{ ms.onOpen }}">
+                        <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
+                          <div style="{{ ms.dotStyle }}"></div>
+                          <span style="font-size:12px;color:#8FAE94;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ ms.projectName }}</span>
+                        </div>
+                        <div style="{{ ms.nameStyle }}">{{ ms.name }}</div>
+                        <div style="font-size:10px;color:#7A9AD8;margin-top:3px">{{ ms.rangeFmt }}</div>
+                      </div>
+                      <sc-if value="{{ ms.hasAvatars }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;align-items:center;flex-shrink:0">
+                          <sc-for list="{{ ms.avatars }}" as="av" hint-placeholder-count="0">
+                            <div style="{{ av.style }}" title="{{ av.name }}">{{ av.initial }}</div>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+                      <button onClick="{{ ms.onToggle }}" style="{{ ms.checkStyle }}">
+                        <sc-if value="{{ ms.done }}" hint-placeholder-val="{{ false }}">
+                          <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1 4.5l2.5 2.5 4.5-4.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </sc-if>
+                      </button>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ noKanbanUpcoming }}" hint-placeholder-val="{{ false }}">
+                    <div style="text-align:center;padding:28px 0;font-size:12px;color:#93A8D8">예정된 Task 없음</div>
+                  </sc-if>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- 프로젝트 리스트 -->
+          <div style="padding:28px 0 0">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+              <span style="font-size:11px;font-weight:700;color:#4A6A50;letter-spacing:0.1em;text-transform:uppercase">진행 중인 프로젝트</span>
+              <span style="font-size:12px;color:#8FAE94">{{ activeCount }}개</span>
+              <div style="flex:1;height:1px;background:#D3E8CA;min-width:20px"></div>
+              <div style="display:flex;gap:4px;flex-shrink:0">
+                <button onClick="{{ setPvList }}" style="{{ pvListStyle }}">리스트</button>
+                <button onClick="{{ setPvGantt }}" style="{{ pvGanttStyle }}">간트</button>
+                <button onClick="{{ setPvCal }}" style="{{ pvCalStyle }}">캘린더</button>
+              </div>
+            </div>
+            <sc-if value="{{ isPvList }}" hint-placeholder-val="{{ true }}">
+            <div style="display:grid;grid-template-columns:2fr 110px 1.5fr 1.5fr 120px;gap:12px;padding:9px 16px;background:#ECF2E8;border-radius:10px 10px 0 0;border:1px solid #D3E8CA;border-bottom:none">
+              <span style="font-size:11px;font-weight:700;color:#4A6A50;letter-spacing:0.05em">프로젝트</span>
+              <span style="font-size:11px;font-weight:700;color:#4A6A50;letter-spacing:0.05em">기간</span>
+              <span style="font-size:11px;font-weight:700;color:#4A6A50;letter-spacing:0.05em">진행 중인 Task</span>
+              <span style="font-size:11px;font-weight:700;color:#4A6A50;letter-spacing:0.05em">다음 Task</span>
+              <span style="font-size:11px;font-weight:700;color:#4A6A50;letter-spacing:0.05em">담당자</span>
+            </div>
+            <div style="background:white;border-radius:0 0 10px 10px;border:1px solid #D3E8CA;overflow:hidden">
+              <sc-for list="{{ projectRows }}" as="row" hint-placeholder-count="5">
+                <div onClick="{{ row.onClick }}" style="{{ row.rowStyle }}" style-hover="{{ rowHover }}">
+                  <div style="display:flex;align-items:center;gap:8px;min-width:0">
+                    <div style="{{ row.dotStyle }}"></div>
+                    <div style="min-width:0">
+                      <div style="font-weight:600;font-size:13px;color:#1A2E1E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ row.name }}</div>
+                      <div style="{{ row.rowBadgeStyle }}">{{ row.statusLabel }}</div>
+                    </div>
+                  </div>
+                  <div style="font-size:11px;color:#8FAE94;line-height:1.5">
+                    <div>{{ row.startFmt }}</div>
+                    <div>~ {{ row.endFmt }}</div>
+                  </div>
+                  <div style="min-width:0">
+                    <div style="font-size:12px;font-weight:500;color:#1A2E1E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ row.currentTaskName }}</div>
+                    <div style="font-size:10px;color:#8FAE94;margin-top:1px">{{ row.currentTaskDue }}</div>
+                  </div>
+                  <div style="min-width:0">
+                    <div style="font-size:12px;color:#4A6A50;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ row.nextTaskName }}</div>
+                    <div style="font-size:10px;color:#8FAE94;margin-top:1px">{{ row.nextTaskDue }}</div>
+                  </div>
+                  <div style="font-size:12px;color:#4A6A50;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ row.assigneeStr }}</div>
+                </div>
+              </sc-for>
+            </div>
+            </sc-if>
+            <sc-if value="{{ isPvGantt }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:10px;margin-top:14px;margin-bottom:14px">
+              <span style="font-size:11px;font-weight:700;color:#4A6A50;letter-spacing:0.1em;text-transform:uppercase">간트 차트</span>
+              <div style="flex:1;height:1px;background:#D3E8CA"></div>
+              <span style="font-size:12px;color:#8FAE94">{{ activeCount }}개 프로젝트</span>
+            </div>
+            <div style="border-radius:12px;border:1px solid #D3E8CA;overflow:hidden;background:white">
+              <div style="overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 220px)">
+                <div style="{{ gantt.wrapStyle }}">
+                  <div style="{{ gantt.headerRowStyle }}">
+                    <div style="{{ gantt.headerLabelCellStyle }}">
+                      <span style="font-size:11px;font-weight:700;color:#4A6A50">프로젝트</span>
+                    </div>
+                    <div style="{{ gantt.headerTimelineStyle }}">
+                      <sc-for list="{{ gantt.months }}" as="gm" hint-placeholder-count="0">
+                        <div style="{{ gm.dividerStyle }}"></div>
+                        <span style="{{ gm.labelStyle }}">{{ gm.label }}</span>
+                      </sc-for>
+                      <div style="{{ gantt.headerTodayStyle }}"></div>
+                      <span style="{{ gantt.headerTodayLabelStyle }}">오늘</span>
+                    </div>
+                  </div>
+                  <div style="{{ gantt.contentWrapStyle }}">
+                    <div style="{{ gantt.todayLineStyle }}"></div>
+                    <sc-for list="{{ gantt.projects }}" as="gp" hint-placeholder-count="5">
+                      <div style="{{ gp.rowStyle }}">
+                        <div style="{{ gp.labelCellStyle }}" onClick="{{ gp.onToggleExpand }}">
+                          <button style="{{ gp.expandBtnStyle }}">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                          </button>
+                          <div style="{{ gp.dotStyle }}"></div>
+                          <div style="{{ gp.textWrapStyle }}">
+                            <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ gp.name }}</div>
+                            <div style="{{ gp.badgeStyle }}">{{ gp.statusLabel }}</div>
+                          </div>
+                        </div>
+                        <div style="{{ gp.timelineCellStyle }}">
+                          <div style="{{ gp.barStyle }}" onClick="{{ gp.onClick }}">
+                            <div style="{{ gp.progressFillStyle }}"></div>
+                            <sc-for list="{{ gp.milestones }}" as="ms" hint-placeholder-count="0">
+                              <div style="{{ ms.dotStyle }}" title="{{ ms.name }}"></div>
+                            </sc-for>
+                          </div>
+                        </div>
+                      </div>
+                      <sc-if value="{{ gp.isExpanded }}" hint-placeholder-val="{{ false }}">
+                        <sc-for list="{{ gp.milestoneRows }}" as="mr" hint-placeholder-count="0">
+                          <div style="{{ mr.rowStyle }}">
+                            <div style="{{ mr.labelCellStyle }}">
+                              <div style="{{ mr.checkDotStyle }}"></div>
+                              <div style="min-width:0;flex:1;display:flex;align-items:center;gap:5px">
+                                <span style="font-size:12px;color:#1A2E1E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1">{{ mr.name }}</span>
+                                <sc-if value="{{ mr.showBadge }}" hint-placeholder-val="{{ false }}">
+                                  <span style="font-size:9px;font-weight:700;color:#92400E;background:#FEF3C7;padding:1px 5px;border-radius:8px;white-space:nowrap;flex-shrink:0">진행 중</span>
+                                </sc-if>
+                              </div>
+                            </div>
+                            <div style="{{ mr.timelineCellStyle }}">
+                              <div style="{{ mr.msBarStyle }}"></div>
+                            </div>
+                          </div>
+                        </sc-for>
+                      </sc-if>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </sc-if>
+            <sc-if value="{{ isPvCal }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:16px;margin-top:14px;margin-bottom:22px">
+              <button onClick="{{ prevMonth }}" style="width:34px;height:34px;border-radius:8px;background:white;border:1px solid #D3E8CA;color:#4A6A50;font-size:17px;display:flex;align-items:center;justify-content:center">‹</button>
+              <div style="font-size:18px;font-weight:700;color:#1A2E1E;min-width:140px;text-align:center">{{ calMonthStr }}</div>
+              <button onClick="{{ nextMonth }}" style="width:34px;height:34px;border-radius:8px;background:white;border:1px solid #D3E8CA;color:#4A6A50;font-size:17px;display:flex;align-items:center;justify-content:center">›</button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px">
+              <sc-for list="{{ dayHeaders }}" as="dh" hint-placeholder-count="7">
+                <div style="text-align:center;font-size:11px;font-weight:600;color:#8FAE94;padding:6px;letter-spacing:0.06em">{{ dh.label }}</div>
+              </sc-for>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">
+              <sc-for list="{{ calDays }}" as="day" hint-placeholder-count="35">
+                <div style="{{ day.cellStyle }}">
+                  <sc-if value="{{ day.hasDate }}" hint-placeholder-val="{{ false }}">
+                    <div style="{{ day.numStyle }}">{{ day.date }}</div>
+                    <sc-for list="{{ day.milestones }}" as="ms" hint-placeholder-count="0">
+                      <div onClick="{{ ms.onClick }}" style="{{ ms.rowStyle }}">
+                        <div style="{{ ms.dotStyle }}"></div>
+                        <span style="font-size:10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1;min-width:0;line-height:1.3">{{ ms.name }}</span>
+                      </div>
+                    </sc-for>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- 아카이브 -->
+        <sc-if value="{{ isArchive }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:26px 0 0">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+              <span style="font-size:11px;font-weight:700;color:#4A6A50;letter-spacing:0.1em;text-transform:uppercase">아카이브</span>
+              <span style="font-size:12px;color:#8FAE94">{{ archivedCount }}개</span>
+              <div style="flex:1;height:1px;background:#D3E8CA"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ archivedCards }}" as="p" hint-placeholder-count="2">
+                <div style="background:white;border-radius:12px;border:1px solid #D3E8CA;padding:14px 18px;display:flex;align-items:center;gap:14px">
+                  <div style="{{ p.dotStyle }}"></div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-weight:600;font-size:14px;color:#1A2E1E">{{ p.name }}</div>
+                    <div style="font-size:12px;color:#8FAE94;margin-top:2px">{{ p.startFmt }} ~ {{ p.endFmt }} · {{ p.done }}/{{ p.total }} 완료</div>
+                  </div>
+                  <div style="display:flex;align-items:center">
+                    <sc-for list="{{ p.avatars }}" as="av" hint-placeholder-count="0">
+                      <div style="{{ av.style }}">{{ av.initial }}</div>
+                    </sc-for>
+                  </div>
+                  <div style="font-size:14px;font-weight:700;color:#4A6A50">{{ p.progressStr }}</div>
+                  <button onClick="{{ p.onRestore }}" style="background:#ECF2E8;color:#2D6A4F;border-radius:8px;padding:6px 16px;font-size:13px;font-weight:600">복원</button>
+                </div>
+              </sc-for>
+              <sc-if value="{{ noArchived }}" hint-placeholder-val="{{ false }}">
+                <div style="text-align:center;padding:64px 0;color:#8FAE94;font-size:14px">아카이브된 프로젝트가 없습니다</div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+      </main>
+
+      <!-- 프로젝트 상세 모달 -->
+      <sc-if value="{{ showModal }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeModal }}" style="position:fixed;inset:0;background:rgba(20,40,24,0.48);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto">
+          <div onClick="{{ stopProp }}" style="background:white;border-radius:18px;width:100%;max-width:590px;display:flex;flex-direction:column;max-height:calc(100vh - 80px);animation:fadeUp 0.22s ease">
+            <div style="padding:24px 24px 0;flex-shrink:0">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                  <div style="{{ modal.dotStyle }}"></div>
+                  <h2 style="font-size:19px;font-weight:700;color:#1A2E1E;line-height:1.3">{{ modal.name }}</h2>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+                  <button onClick="{{ modal.onArchive }}" style="font-size:12px;color:#8FAE94;padding:5px 12px;border-radius:7px;background:#F2F5EF;font-weight:500">아카이브</button>
+                  <button onClick="{{ closeModal }}" style="width:30px;height:30px;border-radius:8px;background:#F2F5EF;color:#4A6A50;font-size:20px;display:flex;align-items:center;justify-content:center;line-height:1">×</button>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+                <sc-for list="{{ statusOpts }}" as="opt" hint-placeholder-count="5">
+                  <button onClick="{{ opt.onClick }}" style="{{ opt.style }}">{{ opt.label }}</button>
+                </sc-for>
+              </div>
+              <div style="background:#F2F5EF;border-radius:12px;padding:13px 16px;display:flex;flex-direction:column;gap:4px">
+                <div style="font-size:11px;font-weight:700;color:#4A6A50;letter-spacing:0.08em;text-transform:uppercase">프로젝트 설명</div>
+                <div style="font-size:13px;color:#1A2E1E;line-height:1.7">{{ modal.desc }}</div>
+                <div style="font-size:11px;color:#8FAE94;margin-top:2px">{{ modal.startFmt }} ~ {{ modal.endFmt }} · {{ modal.done }}/{{ modal.total }} 마일스톤 완료</div>
+              </div>
+            </div>
+            <div style="flex:1;overflow-y:auto;padding:16px 24px 28px;display:flex;flex-direction:column;gap:20px">
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#4A6A50;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">담당자</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <sc-for list="{{ memberOpts }}" as="m" hint-placeholder-count="5">
+                    <button onClick="{{ m.onToggle }}" style="{{ m.btnStyle }}">
+                      <div style="{{ m.avatarStyle }}">{{ m.initial }}</div>
+                      <span style="font-size:13px;color:#1A2E1E">{{ m.name }}</span>
+                    </button>
+                  </sc-for>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#4A6A50;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">마일스톤</div>
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <sc-for list="{{ modal.milestones }}" as="ms" hint-placeholder-count="3">
+                    <div style="{{ ms.rowStyle }}">
+                      <button onClick="{{ ms.onToggle }}" style="{{ ms.checkStyle }}">
+                        <sc-if value="{{ ms.done }}" hint-placeholder-val="{{ false }}">
+                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </sc-if>
+                      </button>
+                      <div style="flex:1;min-width:0;display:flex;align-items:center;gap:6px;min-width:0">
+                        <span style="{{ ms.nameStyle }}">{{ ms.name }}</span>
+                        <sc-if value="{{ ms.isInProgress }}" hint-placeholder-val="{{ false }}">
+                          <span style="font-size:10px;font-weight:700;color:#92400E;background:#FEF3C7;padding:2px 8px;border-radius:10px;flex-shrink:0;white-space:nowrap">진행 중</span>
+                        </sc-if>
+                      </div>
+                      <span style="{{ ms.dueStyle }}">{{ ms.dueFmt }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <sc-if value="{{ showMsForm }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <input value="{{ newMsName }}" onChange="{{ onMsName }}" placeholder="마일스톤 이름" style="flex:1;min-width:130px;border:1px solid #D3E8CA;border-radius:8px;padding:8px 12px;font-size:13px;outline:none;background:white"/>
+                    <input type="date" value="{{ newMsDue }}" onChange="{{ onMsDue }}" style="border:1px solid #D3E8CA;border-radius:8px;padding:8px 10px;font-size:13px;outline:none;background:white"/>
+                    <button onClick="{{ submitMs }}" style="background:#2D6A4F;color:white;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600">추가</button>
+                    <button onClick="{{ cancelMs }}" style="color:#8FAE94;font-size:13px;padding:8px 2px">취소</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ showMsBtn }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ openMsForm }}" style="margin-top:10px;font-size:13px;color:#52B788;font-weight:600;display:flex;align-items:center;gap:5px">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5v9M1.5 6h9" stroke="#52B788" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                    마일스톤 추가
+                  </button>
+                </sc-if>
+              </div>
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#4A6A50;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">메모</div>
+                <textarea value="{{ modal.notes }}" onChange="{{ modal.onNotes }}" placeholder="프로젝트 메모나 코멘트를 입력하세요..." style="width:100%;min-height:90px;border:1px solid #D3E8CA;border-radius:10px;padding:12px;font-size:13px;color:#1A2E1E;background:#F2F5EF;resize:vertical;outline:none;line-height:1.65"></textarea>
+              </div>
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#4A6A50;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">파일 링크</div>
+                <sc-for list="{{ modal.files }}" as="f" hint-placeholder-count="0">
+                  <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #ECF2E8">
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M7.5 1.5H3a1 1 0 00-1 1v9a1 1 0 001 1h7a1 1 0 001-1V5L7.5 1.5z" stroke="#8FAE94" stroke-width="1.3"></path><path d="M7.5 1.5V5H11" stroke="#8FAE94" stroke-width="1.3"></path></svg>
+                    <a href="{{ f.url }}" target="_blank" style="font-size:13px;color:#2D6A4F;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.name }}</a>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ showFileForm }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+                    <input value="{{ newFileName }}" onChange="{{ onFileName }}" placeholder="파일 이름" style="flex:1;min-width:100px;border:1px solid #D3E8CA;border-radius:8px;padding:8px 12px;font-size:13px;outline:none"/>
+                    <input value="{{ newFileUrl }}" onChange="{{ onFileUrl }}" placeholder="https://..." style="flex:2;min-width:140px;border:1px solid #D3E8CA;border-radius:8px;padding:8px 12px;font-size:13px;outline:none"/>
+                    <button onClick="{{ submitFile }}" style="background:#2D6A4F;color:white;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600">추가</button>
+                    <button onClick="{{ cancelFile }}" style="color:#8FAE94;font-size:13px;padding:8px 2px">취소</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ showFileBtn }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ openFileForm }}" style="margin-top:8px;font-size:13px;color:#52B788;font-weight:600;display:flex;align-items:center;gap:5px">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5v9M1.5 6h9" stroke="#52B788" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                    파일 링크 추가
+                  </button>
+                </sc-if>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- 새 프로젝트 모달 -->
+      <sc-if value="{{ showAddProject }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeAdd }}" style="position:fixed;inset:0;background:rgba(20,40,24,0.48);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px">
+          <div onClick="{{ stopProp }}" style="background:white;border-radius:18px;width:100%;max-width:460px;padding:28px;animation:fadeUp 0.22s ease">
+            <h2 style="font-size:17px;font-weight:700;color:#1A2E1E;margin-bottom:20px">새 프로젝트 추가</h2>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div>
+                <label style="font-size:12px;font-weight:600;color:#4A6A50;display:block;margin-bottom:6px">프로젝트 이름 *</label>
+                <input value="{{ addForm.name }}" onChange="{{ onAddName }}" placeholder="프로젝트 이름 입력" style="width:100%;border:1px solid #D3E8CA;border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:#fff"/>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#4A6A50;display:block;margin-bottom:6px">시작일 *</label>
+                  <input type="date" value="{{ addForm.startDate }}" onChange="{{ onAddStart }}" style="width:100%;border:1px solid #D3E8CA;border-radius:10px;padding:10px 12px;font-size:13px;outline:none;background:#fff"/>
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#4A6A50;display:block;margin-bottom:6px">종료일 *</label>
+                  <input type="date" value="{{ addForm.endDate }}" onChange="{{ onAddEnd }}" style="width:100%;border:1px solid #D3E8CA;border-radius:10px;padding:10px 12px;font-size:13px;outline:none;background:#fff"/>
+                </div>
+              </div>
+              <div>
+                <label style="font-size:12px;font-weight:600;color:#4A6A50;display:block;margin-bottom:6px">설명 (선택)</label>
+                <textarea value="{{ addForm.desc }}" onChange="{{ onAddDesc }}" placeholder="프로젝트 간단 설명..." rows="2" style="width:100%;border:1px solid #D3E8CA;border-radius:10px;padding:10px 14px;font-size:13px;resize:none;outline:none;background:#fff"></textarea>
+              </div>
+              <div>
+                <label style="font-size:12px;font-weight:600;color:#4A6A50;display:block;margin-bottom:10px">프로젝트 색상</label>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:4px 2px">
+                  <sc-for list="{{ addColorOptions }}" as="opt" hint-placeholder-count="10">
+                    <div style="{{ opt.swatchStyle }}" onClick="{{ opt.onClick }}"></div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:22px;justify-content:flex-end">
+              <button onClick="{{ closeAdd }}" style="padding:9px 22px;border-radius:10px;font-size:14px;color:#4A6A50;background:#ECF2E8">취소</button>
+              <button onClick="{{ submitAdd }}" style="padding:9px 22px;border-radius:10px;font-size:14px;font-weight:600;background:#2D6A4F;color:white">프로젝트 생성</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </sc-if>
+
+  <!-- ===== 회원 관리 패널 ===== -->
+  <sc-if value="{{ showUserPanel }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeUserPanel }}" style="position:fixed;inset:0;background:rgba(20,40,24,0.48);z-index:300;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto">
+      <div onClick="{{ stopProp }}" style="background:white;border-radius:18px;width:100%;max-width:560px;padding:28px;animation:fadeUp 0.22s ease">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <div>
+            <div style="font-size:17px;font-weight:700;color:#1A2E1E">회원 관리</div>
+            <div style="font-size:12px;color:#8FAE94;margin-top:2px">총 {{ totalUsers }}명 등록</div>
+          </div>
+          <button onClick="{{ closeUserPanel }}" style="width:30px;height:30px;border-radius:8px;background:#F2F5EF;color:#4A6A50;font-size:20px;display:flex;align-items:center;justify-content:center;line-height:1">×</button>
+        </div>
+        <div>
+          <sc-for list="{{ allUsers }}" as="user" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #F0F5EE">
+              <div style="{{ user.avatarStyle }}">{{ user.initial }}</div>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <span style="font-weight:600;font-size:14px;color:#1A2E1E">{{ user.name }}</span>
+                  <sc-if value="{{ user.isAdmin }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:10px;background:#ECF2E8;color:#2D6A4F;padding:2px 6px;border-radius:6px;font-weight:600">관리자</span>
+                  </sc-if>
+                </div>
+                <div style="font-size:12px;color:#8FAE94;margin-top:1px">{{ user.email }}</div>
+              </div>
+              <div style="font-size:11px;color:#8FAE94;flex-shrink:0">{{ user.createdAt }}</div>
+              <div style="{{ user.statusStyle }}">{{ user.statusLabel }}</div>
+              <sc-if value="{{ user.canApprove }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ user.onApprove }}" style="background:#DCFCE7;color:#166534;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;flex-shrink:0">승인</button>
+              </sc-if>
+              <sc-if value="{{ user.canReject }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ user.onReject }}" style="background:#FEE2E2;color:#B91C1C;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;flex-shrink:0">거절</button>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const STATUS = {
+  not_started: { label:'시작 전',  color:'#6B7280', bg:'#F3F4F6' },
+  in_progress:  { label:'진행 중',  color:'#166534', bg:'#DCFCE7' },
+  at_risk:      { label:'위험',    color:'#B91C1C', bg:'#FEE2E2' },
+  completed:    { label:'완료',    color:'#14532D', bg:'#BBF7D0' },
+  delayed:      { label:'지연',    color:'#92400E', bg:'#FEF3C7' },
+};
+
+const COLORS = ['#52B788','#4A90D9','#E8A838','#D4845A','#7B62A3','#3D7A5C','#D4685A','#3A9B8C','#8D99AE','#C4A55A'];
+
+const TEAM = [
+  { id:'tm1', name:'김민준', color:'#2D6A4F' },
+  { id:'tm2', name:'이서연', color:'#4A90D9' },
+  { id:'tm3', name:'박지호', color:'#D4845A' },
+  { id:'tm4', name:'최유나', color:'#D4685A' },
+  { id:'tm5', name:'정현우', color:'#7B62A3' },
+];
+
+const fmt = (d, opts) => {
+  try { return new Date(d + 'T00:00:00').toLocaleDateString('ko-KR', opts || { month:'short', day:'numeric' }); }
+  catch(e) { return ''; }
+};
+
+const INIT = [
+  { id:'p1',  name:'브랜드 리뉴얼',      desc:'회사 브랜드 전면 리뉴얼',  start:'2026-05-01', end:'2026-08-31', status:'in_progress', color:'#52B788', notes:'', files:[], archived:false, members:['tm1','tm2'], milestones:[
+    {id:'p1m1',name:'현재 브랜드 분석',due:'2026-05-15',done:true},{id:'p1m2',name:'경쟁사 리서치',due:'2026-05-30',done:true},
+    {id:'p1m3',name:'컨셉 개발',due:'2026-06-15',done:true},{id:'p1m4',name:'BI 디자인 시안',due:'2026-07-10',done:false},{id:'p1m5',name:'최종 가이드라인',due:'2026-08-15',done:false},
+  ]},
+  { id:'p2',  name:'홈페이지 리디자인',  desc:'기업 홈페이지 전면 개편',   start:'2026-06-01', end:'2026-09-30', status:'in_progress', color:'#4A90D9', notes:'', files:[], archived:false, members:['tm2','tm3'], milestones:[
+    {id:'p2m1',name:'요구사항 정의',due:'2026-06-10',done:true},{id:'p2m2',name:'와이어프레임 완성',due:'2026-06-27',done:false},
+    {id:'p2m3',name:'UI 디자인 완료',due:'2026-07-31',done:false},{id:'p2m4',name:'개발 완료',due:'2026-09-15',done:false},
+  ]},
+  { id:'p3',  name:'SNS 마케팅 캠페인', desc:'여름 시즌 SNS 마케팅',       start:'2026-06-15', end:'2026-07-31', status:'in_progress', color:'#E8A838', notes:'', files:[], archived:false, members:['tm3','tm4'], milestones:[
+    {id:'p3m1',name:'콘텐츠 기획',due:'2026-06-20',done:true},{id:'p3m2',name:'크리에이티브 제작',due:'2026-06-26',done:false},
+    {id:'p3m3',name:'게시 스케줄 확정',due:'2026-07-01',done:false},{id:'p3m4',name:'중간 성과 분석',due:'2026-07-15',done:false},
+  ]},
+  { id:'p4',  name:'Q3 마케팅 전략',    desc:'3분기 마케팅 전략 수립',     start:'2026-06-01', end:'2026-07-15', status:'at_risk',    color:'#D4845A', notes:'', files:[], archived:false, members:['tm1','tm5'], milestones:[
+    {id:'p4m1',name:'시장 분석',due:'2026-06-10',done:true},{id:'p4m2',name:'전략 수립',due:'2026-06-25',done:false},
+    {id:'p4m3',name:'발표 자료 준비',due:'2026-07-05',done:false},{id:'p4m4',name:'경영진 보고',due:'2026-07-15',done:false},
+  ]},
+  { id:'p5',  name:'파트너사 계약',      desc:'신규 파트너사 계약 체결',    start:'2026-06-10', end:'2026-07-20', status:'in_progress', color:'#7B62A3', notes:'', files:[], archived:false, members:['tm5','tm1'], milestones:[
+    {id:'p5m1',name:'파트너 리서치',due:'2026-06-15',done:true},{id:'p5m2',name:'1차 미팅',due:'2026-06-20',done:true},
+    {id:'p5m3',name:'계약서 검토',due:'2026-06-26',done:false},{id:'p5m4',name:'최종 계약 체결',due:'2026-07-10',done:false},
+  ]},
+  { id:'p6',  name:'사내 교육 프로그램', desc:'팀 역량 강화 교육',          start:'2026-07-01', end:'2026-08-31', status:'not_started', color:'#3D7A5C', notes:'', files:[], archived:false, members:['tm4','tm2'], milestones:[
+    {id:'p6m1',name:'커리큘럼 기획',due:'2026-07-10',done:false},{id:'p6m2',name:'강사 섭외',due:'2026-07-20',done:false},
+    {id:'p6m3',name:'교육 진행',due:'2026-08-10',done:false},{id:'p6m4',name:'성과 평가',due:'2026-08-31',done:false},
+  ]},
+  { id:'p7',  name:'제품 포토그래피',    desc:'신규 제품 사진 촬영',        start:'2026-06-20', end:'2026-07-10', status:'in_progress', color:'#D4685A', notes:'', files:[], archived:false, members:['tm3'], milestones:[
+    {id:'p7m1',name:'촬영 기획',due:'2026-06-22',done:true},{id:'p7m2',name:'스튜디오 예약',due:'2026-06-25',done:false},
+    {id:'p7m3',name:'촬영 진행',due:'2026-07-03',done:false},{id:'p7m4',name:'보정 완료',due:'2026-07-10',done:false},
+  ]},
+  { id:'p8',  name:'뉴스레터 7월호',     desc:'7월 뉴스레터 제작 발송',     start:'2026-06-25', end:'2026-07-05', status:'in_progress', color:'#3A9B8C', notes:'', files:[], archived:false, members:['tm2','tm4'], milestones:[
+    {id:'p8m1',name:'주제 선정',due:'2026-06-25',done:false},{id:'p8m2',name:'콘텐츠 작성',due:'2026-07-01',done:false},
+    {id:'p8m3',name:'디자인 & 발송',due:'2026-07-05',done:false},
+  ]},
+  { id:'p9',  name:'연간 보고서',        desc:'2026 상반기 보고서',         start:'2026-07-15', end:'2026-09-30', status:'not_started', color:'#8D99AE', notes:'', files:[], archived:false, members:['tm1','tm3','tm5'], milestones:[
+    {id:'p9m1',name:'데이터 수집',due:'2026-07-25',done:false},{id:'p9m2',name:'초안 작성',due:'2026-08-20',done:false},
+    {id:'p9m3',name:'디자인',due:'2026-09-10',done:false},{id:'p9m4',name:'인쇄 & 배포',due:'2026-09-30',done:false},
+  ]},
+  { id:'p10', name:'팀 워크샵',          desc:'하반기 팀빌딩 워크샵',       start:'2026-07-01', end:'2026-07-25', status:'not_started', color:'#C4A55A', notes:'', files:[], archived:false, members:['tm1','tm2','tm3','tm4','tm5'], milestones:[
+    {id:'p10m1',name:'장소 섭외',due:'2026-07-05',done:false},{id:'p10m2',name:'아젠다 기획',due:'2026-07-12',done:false},
+    {id:'p10m3',name:'자료 준비',due:'2026-07-19',done:false},
+  ]},
+];
+
+class Component extends DCLogic {
+  state = {
+    projects: INIT,
+    view: 'dashboard',
+    selId: null,
+    calDate: new Date(),
+    projectView: 'list',
+    showAddProject: false,
+    showMsForm: false,
+    showFileForm: false,
+    addForm: { name:'', startDate:'', endDate:'', desc:'', color:COLORS[0] },
+    newMsName:'', newMsDue:'', newFileName:'', newFileUrl:'',
+    // Auth
+    authUsers: [],
+    currentUser: null,
+    authView: 'login',
+    authForm: { name:'', email:'', password:'', error:'' },
+    showUserPanel: false,
+    ganttExpanded: {},
+  };
+
+  componentDidMount() {
+    try {
+      const s = localStorage.getItem('phub_v4');
+      if (s) this.setState({ projects: JSON.parse(s) });
+    } catch(e) {}
+    try {
+      const usersRaw = localStorage.getItem('phub_users');
+      const authUsers = usersRaw ? JSON.parse(usersRaw) : [];
+      let currentUser = null;
+      const sessRaw = localStorage.getItem('phub_session');
+      if (sessRaw) {
+        const { id } = JSON.parse(sessRaw);
+        currentUser = authUsers.find(u => u.id === id) || null;
+      }
+      this.setState({ authUsers, currentUser });
+    } catch(e) {}
+  }
+
+  persist() {
+    try { localStorage.setItem('phub_v4', JSON.stringify(this.state.projects)); } catch(e) {}
+  }
+
+  saveUsers(users) {
+    try { localStorage.setItem('phub_users', JSON.stringify(users)); } catch(e) {}
+  }
+
+  updateProjects(fn) {
+    this.setState(s => ({ projects: s.projects.map(fn) }), () => this.persist());
+  }
+
+  signup() {
+    const { authForm, authUsers } = this.state;
+    if (!authForm.name.trim() || !authForm.email.trim() || !authForm.password.trim()) {
+      return this.setState(s => ({ authForm:{...s.authForm, error:'모든 항목을 입력해주세요'} }));
+    }
+    if (authForm.password.length < 6) {
+      return this.setState(s => ({ authForm:{...s.authForm, error:'비밀번호는 6자 이상이어야 합니다'} }));
+    }
+    if (authUsers.find(u => u.email === authForm.email.toLowerCase())) {
+      return this.setState(s => ({ authForm:{...s.authForm, error:'이미 가입된 이메일입니다'} }));
+    }
+    const isFirst = authUsers.length === 0;
+    const newUser = {
+      id: 'u_' + Date.now(),
+      name: authForm.name.trim(),
+      email: authForm.email.trim().toLowerCase(),
+      password: authForm.password,
+      role: isFirst ? 'admin' : 'user',
+      status: isFirst ? 'approved' : 'pending',
+      createdAt: new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'short', day:'numeric' }),
+    };
+    const updated = [...authUsers, newUser];
+    this.saveUsers(updated);
+    try { localStorage.setItem('phub_session', JSON.stringify({ id: newUser.id })); } catch(e) {}
+    this.setState({ authUsers: updated, currentUser: newUser, authForm:{ name:'', email:'', password:'', error:'' } });
+  }
+
+  login() {
+    const { authForm, authUsers } = this.state;
+    if (!authForm.email.trim() || !authForm.password.trim()) {
+      return this.setState(s => ({ authForm:{...s.authForm, error:'이메일과 비밀번호를 입력해주세요'} }));
+    }
+    const user = authUsers.find(u => u.email === authForm.email.toLowerCase() && u.password === authForm.password);
+    if (!user) {
+      return this.setState(s => ({ authForm:{...s.authForm, error:'이메일 또는 비밀번호가 올바르지 않습니다'} }));
+    }
+    try { localStorage.setItem('phub_session', JSON.stringify({ id: user.id })); } catch(e) {}
+    this.setState({ currentUser: user, authForm:{ name:'', email:'', password:'', error:'' } });
+  }
+
+  logout() {
+    try { localStorage.removeItem('phub_session'); } catch(e) {}
+    this.setState({ currentUser: null, authView:'login' });
+  }
+
+  approveUser(uid) {
+    this.setState(s => {
+      const updated = s.authUsers.map(u => u.id !== uid ? u : { ...u, status:'approved' });
+      this.saveUsers(updated);
+      return { authUsers: updated };
+    });
+  }
+
+  rejectUser(uid) {
+    this.setState(s => {
+      const updated = s.authUsers.map(u => u.id !== uid ? u : { ...u, status:'rejected' });
+      this.saveUsers(updated);
+      return { authUsers: updated };
+    });
+  }
+
+  toggleMs(pid, mid) {
+    this.updateProjects(p => p.id !== pid ? p : {
+      ...p, milestones: p.milestones.map(m => m.id !== mid ? m : { ...m, done: !m.done })
+    });
+  }
+
+  toggleMember(pid, tid) {
+    this.updateProjects(p => {
+      if (p.id !== pid) return p;
+      const members = p.members || [];
+      const has = members.includes(tid);
+      return { ...p, members: has ? members.filter(m => m !== tid) : [...members, tid] };
+    });
+  }
+
+  archive(pid) {
+    this.updateProjects(p => p.id !== pid ? p : { ...p, archived: true });
+    this.setState({ selId: null });
+    setTimeout(() => this.persist(), 0);
+  }
+
+  restore(pid) { this.updateProjects(p => p.id !== pid ? p : { ...p, archived: false }); }
+  setNotes(pid, notes) { this.updateProjects(p => p.id !== pid ? p : { ...p, notes }); }
+  setStatus(pid, status) { this.updateProjects(p => p.id !== pid ? p : { ...p, status }); }
+
+  addMs() {
+    const { selId, newMsName, newMsDue } = this.state;
+    if (!newMsName.trim() || !newMsDue) return;
+    const ms = { id:'ms_'+Date.now(), name:newMsName.trim(), due:newMsDue, done:false };
+    this.updateProjects(p => p.id !== selId ? p : { ...p, milestones:[...p.milestones, ms] });
+    this.setState({ newMsName:'', newMsDue:'', showMsForm:false });
+  }
+
+  addFile() {
+    const { selId, newFileName, newFileUrl } = this.state;
+    if (!newFileName.trim() || !newFileUrl.trim()) return;
+    const f = { id:'f_'+Date.now(), name:newFileName.trim(), url:newFileUrl.trim() };
+    this.updateProjects(p => p.id !== selId ? p : { ...p, files:[...(p.files||[]), f] });
+    this.setState({ newFileName:'', newFileUrl:'', showFileForm:false });
+  }
+
+  addProject() {
+    const { addForm, projects } = this.state;
+    if (!addForm.name.trim() || !addForm.startDate || !addForm.endDate) return;
+    const np = {
+      id:'p_'+Date.now(), name:addForm.name.trim(), desc:addForm.desc||'',
+      start:addForm.startDate, end:addForm.endDate,
+      status:'not_started', color:addForm.color||COLORS[projects.length % COLORS.length],
+      milestones:[], notes:'', files:[], archived:false, members:[],
+    };
+    this.setState(s => ({
+      projects:[...s.projects, np],
+      showAddProject:false, addForm:{ name:'', startDate:'', endDate:'', desc:'', color:COLORS[0] },
+    }), () => this.persist());
+  }
+
+  makeAvatars(members) {
+    return (members||[]).map((mid, i) => {
+      const t = TEAM.find(tm => tm.id === mid);
+      if (!t) return null;
+      return { initial:t.name[0], name:t.name, style:{ width:'26px', height:'26px', borderRadius:'50%', background:t.color, color:'white', fontSize:'11px', fontWeight:'700', display:'flex', alignItems:'center', justifyContent:'center', border:'2px solid white', marginLeft:i>0?'-8px':'0', flexShrink:0, position:'relative', zIndex:10-i } };
+    }).filter(Boolean);
+  }
+
+  calc(p) {
+    const ms = p.milestones||[];
+    const total = ms.length, done = ms.filter(m => m.done).length;
+    const progress = total > 0 ? Math.round(done/total*100) : 0;
+    const sc = STATUS[p.status]||STATUS.not_started;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const endD = new Date((p.end||p.endDate)+'T00:00:00');
+    const dl = Math.ceil((endD-today)/86400000);
+    const nextMs = ms.find(m => !m.done);
+    return {
+      ...p, progress, progressStr:progress+'%', done, total,
+      startFmt:fmt(p.start||p.startDate), endFmt:fmt(p.end||p.endDate),
+      nextName:nextMs?nextMs.name:(total>0?'모든 마일스톤 완료 ✓':'마일스톤 없음'),
+      nextDue:nextMs?fmt(nextMs.due):'',
+      nextMsDueRaw:nextMs?nextMs.due:'9999-99-99',
+      ddayStr:dl<0?'D+'+Math.abs(dl):dl===0?'D-day':'D-'+dl,
+      ddayStyle:{ fontSize:'11px', fontWeight:'600', color:dl<0?'#B91C1C':dl<=7?'#92400E':'#8FAE94', background:dl<0?'#FEE2E2':dl<=7?'#FEF3C7':'transparent', padding:(dl<0||dl<=7)?'2px 8px':'0', borderRadius:'20px' },
+      statusLabel:sc.label,
+      badgeStyle:{ fontSize:'11px', fontWeight:'600', color:sc.color, background:sc.bg, padding:'3px 9px', borderRadius:'20px', whiteSpace:'nowrap', flexShrink:0 },
+      barStyle:{ width:progress+'%', height:'100%', background:progress===100?'#40916C':p.color, borderRadius:'3px', transition:'width 0.4s ease' },
+      dotStyle:{ width:'10px', height:'10px', borderRadius:'50%', background:p.color, flexShrink:0 },
+      avatars:this.makeAvatars(p.members), noMembers:!(p.members&&p.members.length),
+    };
+  }
+
+  renderVals() {
+    const { projects, view, selId, calDate, projectView, showAddProject, showMsForm, showFileForm, addForm, newMsName, newMsDue, newFileName, newFileUrl, authUsers, currentUser, authView, authForm, showUserPanel } = this.state;
+
+    const isLoggedIn = !!currentUser;
+    const isApproved = isLoggedIn && currentUser.status === 'approved';
+    const isPending  = isLoggedIn && currentUser.status === 'pending';
+    const isAdmin    = isLoggedIn && currentUser.role === 'admin';
+    const pendingCount = authUsers.filter(u => u.status === 'pending').length;
+
+    const today = new Date(); today.setHours(0,0,0,0);
+    const dow = today.getDay()===0?6:today.getDay()-1;
+    const wStart = new Date(today); wStart.setDate(today.getDate()-dow);
+    const wEnd = new Date(wStart); wEnd.setDate(wStart.getDate()+6);
+
+    const active = projects.filter(p => !p.archived);
+    const archived = projects.filter(p => p.archived);
+
+    const projectCards = active.map(p => ({ ...this.calc(p), onClick:()=>this.setState({ selId:p.id, showMsForm:false, showFileForm:false }) }))
+      .sort((a,b) => new Date(a.end||a.endDate)-new Date(b.end||b.endDate));
+
+    const makeMsItem = (m, proj) => {
+      const msList = proj.milestones || [];
+      const idx = msList.findIndex(x => x.id === m.id);
+      const prevMs = idx > 0 ? msList[idx - 1] : null;
+      const msStart = prevMs ? prevMs.due : (proj.start || proj.startDate);
+      const rangeFmt = fmt(msStart, {month:'short',day:'numeric'}) + ' ~ ' + fmt(m.due, {month:'short',day:'numeric'});
+      return ({
+      ...m, projectName:proj.name, projectColor:proj.color,
+      dueFmt:fmt(m.due,{month:'short',day:'numeric',weekday:'short'}),
+      rangeFmt,
+      onOpen:()=>this.setState({ selId:proj.id, showMsForm:false, showFileForm:false }),
+      onToggle:()=>this.toggleMs(proj.id, m.id),
+      dotStyle:{ width:'6px', height:'6px', borderRadius:'50%', background:proj.color, flexShrink:0 },
+      nameStyle:{ fontSize:'14px', fontWeight:m.done?'400':'600', color:m.done?'#8FAE94':'#1A2E1E', textDecoration:m.done?'line-through':'none', lineHeight:'1.4' },
+      checkStyle:{ width:'18px', height:'18px', borderRadius:'50%', flexShrink:0, border:'1.5px solid '+(m.done?'#40916C':'#C8DCC0'), background:m.done?'#40916C':'transparent', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', transition:'all 0.15s', marginTop:'1px' },
+      avatars:(proj.members||[]).map((mid,i)=>{ const t=TEAM.find(tm=>tm.id===mid); if(!t)return null; return{initial:t.name[0],name:t.name,style:{width:'17px',height:'17px',borderRadius:'50%',background:t.color,color:'white',fontSize:'9px',fontWeight:'700',display:'flex',alignItems:'center',justifyContent:'center',border:'1.5px solid white',marginLeft:i>0?'-5px':'0',flexShrink:0,position:'relative',zIndex:10-i}}; }).filter(Boolean),
+      hasAvatars:!!(proj.members&&proj.members.length),
+    }); };
+
+    const thisWeekMilestones = [];
+    const kanbanAllItems = [];
+    active.forEach(proj => {
+      (proj.milestones||[]).forEach(m => {
+        const d = new Date(m.due+'T00:00:00');
+        const isThisWeek = d >= wStart && d <= wEnd;
+        const isOverdue  = d < wStart && !m.done;
+        if (isThisWeek) thisWeekMilestones.push(makeMsItem(m, proj));
+        if (isThisWeek || isOverdue) kanbanAllItems.push(makeMsItem(m, proj));
+      });
+    });
+    thisWeekMilestones.sort((a,b)=>new Date(a.due)-new Date(b.due));
+    kanbanAllItems.sort((a,b)=>new Date(a.due)-new Date(b.due));
+
+    const todayISO = today.toISOString().split('T')[0];
+    const kanbanToday    = kanbanAllItems.filter(ms => new Date(ms.due+'T00:00:00') <= today);
+    const kanbanUpcoming = kanbanAllItems.filter(ms => { const d=new Date(ms.due+'T00:00:00'); return d>today && d<=wEnd; });
+    const kanbanDone     = [];
+
+    // 캘린더
+    const calYear=calDate.getFullYear(), calMonth=calDate.getMonth();
+    const firstDay=new Date(calYear,calMonth,1), lastDay=new Date(calYear,calMonth+1,0);
+    const pad=(firstDay.getDay()+6)%7;
+    const calDays=[];
+    for(let i=0;i<pad;i++) calDays.push({hasDate:false,milestones:[],cellStyle:{minHeight:'88px',borderRadius:'8px',padding:'6px'}});
+    for(let d=1;d<=lastDay.getDate();d++){
+      const ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      const dt=new Date(calYear,calMonth,d);
+      const isToday=dt.toDateString()===today.toDateString();
+      const isSat=dt.getDay()===6,isSun=dt.getDay()===0;
+      const dayMs=[];
+      active.forEach(proj=>{(proj.milestones||[]).forEach(m=>{if(m.due===ds)dayMs.push({...m,projectColor:proj.color,onClick:()=>this.setState({selId:proj.id}),dotStyle:{width:'5px',height:'5px',borderRadius:'50%',background:proj.color,flexShrink:0},rowStyle:{display:'flex',alignItems:'center',gap:'4px',padding:'2px 4px',borderRadius:'4px',cursor:'pointer',marginTop:'2px',background:m.done?'#F0FDF4':proj.color+'1A'}});});});
+      calDays.push({ date:d, dateStr:ds, hasDate:true, milestones:dayMs,
+        cellStyle:{minHeight:'88px',borderRadius:'8px',padding:'6px',background:isToday?'#F0FDF4':'white',border:'1px solid '+(isToday?'#86EFAC':'#D3E8CA'),overflow:'hidden'},
+        numStyle:{width:'22px',height:'22px',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:'3px',fontSize:'12px',fontWeight:isToday?'700':'400',color:isToday?'white':(isSat?'#4A90D9':isSun?'#D4685A':'#1A2E1E'),background:isToday?'#2D6A4F':'transparent',flexShrink:0},
+      });
+    }
+
+    // 모달
+    const selProj = selId ? projects.find(p=>p.id===selId) : null;
+    const selCalc = selProj ? this.calc(selProj) : null;
+    const EMPTY = {name:'',notes:'',files:[],milestones:[],progressStr:'0%',done:0,total:0,startFmt:'',endFmt:'',dotStyle:{},barStyle:{width:'0%',height:'100%',background:'#52B788',borderRadius:'4px'},onArchive:()=>{},onNotes:()=>{}};
+    const modal = selCalc ? {
+      ...selCalc,
+      onArchive:()=>this.archive(selProj.id),
+      onNotes:(e)=>this.setNotes(selProj.id,e.target.value),
+      milestones:(selProj.milestones||[]).map((m,idx,arr)=>{
+        const od=!m.done&&new Date(m.due+'T00:00:00')<today;
+        const prevMs=idx>0?arr[idx-1]:null;
+        const msStart=new Date((prevMs?prevMs.due:(selProj.start||selProj.startDate))+'T00:00:00');
+        const msDue=new Date(m.due+'T00:00:00');
+        const isInProgress=!m.done&&today>=msStart&&today<=msDue;
+        return {...m,dueFmt:fmt(m.due),isInProgress,onToggle:()=>this.toggleMs(selProj.id,m.id),
+          rowStyle:{display:'flex',alignItems:'center',gap:'10px',padding:'9px 10px',borderRadius:'8px',background:m.done?'#F0FDF4':isInProgress?'#FFFBF0':'#F7FAF5',border:isInProgress?'1px solid #F5E6C0':'1px solid transparent'},
+          checkStyle:{width:'20px',height:'20px',borderRadius:'50%',flexShrink:0,border:'2px solid '+(m.done?'#40916C':isInProgress?'#E8A838':'#D3E8CA'),background:m.done?'#40916C':'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',transition:'all 0.15s'},
+          nameStyle:{fontSize:'14px',fontWeight:m.done?'400':'500',color:m.done?'#8FAE94':'#1A2E1E',textDecoration:m.done?'line-through':'none'},
+          dueStyle:{fontSize:'12px',flexShrink:0,color:m.done?'#8FAE94':(od?'#B91C1C':'#8FAE94')}};
+      }),
+      files:selProj.files||[],
+    } : EMPTY;
+
+    const memberOpts = TEAM.map(t=>{
+      const assigned=selProj&&(selProj.members||[]).includes(t.id);
+      return {...t,initial:t.name[0],onToggle:selProj?()=>this.toggleMember(selProj.id,t.id):()=>{},
+        btnStyle:{display:'flex',alignItems:'center',gap:'8px',padding:'6px 14px',borderRadius:'20px',cursor:'pointer',background:assigned?t.color+'1A':'#F2F5EF',border:'1px solid '+(assigned?t.color:'transparent'),transition:'all 0.15s'},
+        avatarStyle:{width:'24px',height:'24px',borderRadius:'50%',background:t.color,color:'white',fontSize:'10px',fontWeight:'700',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}};
+    });
+
+    const statusOpts = Object.entries(STATUS).map(([key,sc])=>{
+      const isActive=selProj&&selProj.status===key;
+      return {label:sc.label,onClick:selProj?()=>this.setStatus(selProj.id,key):()=>{},
+        style:{fontSize:'12px',fontWeight:isActive?'700':'500',cursor:'pointer',color:isActive?sc.color:'#8FAE94',background:isActive?sc.bg:'#F2F5EF',padding:'4px 12px',borderRadius:'20px',border:'1px solid '+(isActive?sc.color+'50':'transparent'),transition:'all 0.15s'}};
+    });
+
+    const projectRows = projectCards.map(p=>{
+      const sc=STATUS[p.status]||STATUS.not_started;
+      const notDone=(p.milestones||[]).filter(m=>!m.done).sort((a,b)=>a.due<b.due?-1:1);
+      const cur=notDone[0],nxt=notDone[1];
+      const assigneeStr=(p.members||[]).map(mid=>{const t=TEAM.find(tm=>tm.id===mid);return t?t.name:null;}).filter(Boolean).join(' · ')||'미지정';
+      return {...p,currentTaskName:cur?cur.name:'—',currentTaskDue:cur?fmt(cur.due):'',nextTaskName:nxt?nxt.name:'—',nextTaskDue:nxt?fmt(nxt.due):'',assigneeStr,
+        rowBadgeStyle:{fontSize:'10px',fontWeight:'600',color:sc.color,background:sc.bg,padding:'2px 6px',borderRadius:'10px',whiteSpace:'nowrap',display:'inline-flex',marginTop:'3px'},
+        rowStyle:{display:'grid',gridTemplateColumns:'2fr 110px 1.5fr 1.5fr 120px',gap:'12px',padding:'11px 16px',borderBottom:'1px solid #F0F5EE',cursor:'pointer',transition:'background 0.1s',alignItems:'center'}};
+    });
+
+    // 회원 관리
+    const allUsers = authUsers.map(u=>{
+      const sc=u.status==='approved'?{label:'승인됨',color:'#166534',bg:'#DCFCE7'}:u.status==='pending'?{label:'대기 중',color:'#92400E',bg:'#FEF3C7'}:{label:'거절됨',color:'#B91C1C',bg:'#FEE2E2'};
+      return {...u,initial:u.name?u.name[0]:'?',isAdmin:u.role==='admin',
+        statusLabel:sc.label,statusStyle:{fontSize:'11px',fontWeight:'600',color:sc.color,background:sc.bg,padding:'2px 8px',borderRadius:'10px',whiteSpace:'nowrap',flexShrink:0},
+        avatarStyle:{width:'36px',height:'36px',borderRadius:'50%',background:u.role==='admin'?'#2D6A4F':'#8FAE94',color:'white',fontSize:'14px',fontWeight:'700',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0},
+        canApprove:u.status!=='approved',canReject:u.status!=='rejected',
+        onApprove:()=>this.approveUser(u.id),onReject:()=>this.rejectUser(u.id)};
+    });
+
+    // ===== Gantt =====
+    const DAY_W=16,ROW_H=52,MS_ROW_H=38,LABEL_W=200;
+    const ganttExpanded=this.state.ganttExpanded||{};
+    let gMinD=active.length?new Date(Math.min(...active.map(p=>new Date((p.start||p.startDate)+'T00:00:00')))):new Date(today);
+    let gMaxD=active.length?new Date(Math.max(...active.map(p=>new Date((p.end||p.endDate)+'T00:00:00')))):new Date(today);
+    gMinD=new Date(gMinD); gMinD.setDate(gMinD.getDate()-14);
+    gMaxD=new Date(gMaxD); gMaxD.setDate(gMaxD.getDate()+21);
+    const gTotalDays=Math.ceil((gMaxD-gMinD)/86400000);
+    const gTimelineW=gTotalDays*DAY_W;
+    const ganttMonths=[];
+    const gMC=new Date(gMinD.getFullYear(),gMinD.getMonth(),1);
+    while(gMC<=gMaxD){
+      const off=Math.max(0,Math.ceil((new Date(gMC)-gMinD)/86400000));
+      ganttMonths.push({
+        label:new Date(gMC).toLocaleDateString('ko-KR',{year:'numeric',month:'short'}),
+        dividerStyle:{position:'absolute',left:(off*DAY_W)+'px',top:0,bottom:0,width:'1px',background:'#D3E8CA',pointerEvents:'none'},
+        labelStyle:{position:'absolute',left:(off*DAY_W+6)+'px',top:'50%',transform:'translateY(-50%)',fontSize:'11px',fontWeight:'600',color:'#4A6A50',whiteSpace:'nowrap',pointerEvents:'none'},
+      });
+      gMC.setMonth(gMC.getMonth()+1);
+    }
+    const gTodayX=Math.ceil((today-gMinD)/86400000)*DAY_W;
+    const anyExpanded=Object.keys(ganttExpanded).some(k=>ganttExpanded[k]);
+    const ganttProjects=active.map((p,ri)=>{
+      const sd=new Date((p.start||p.startDate)+'T00:00:00');
+      const ed=new Date((p.end||p.endDate)+'T00:00:00');
+      const bl=Math.max(0,Math.ceil((sd-gMinD)/86400000))*DAY_W;
+      const bw=Math.max(DAY_W*2,(Math.ceil((ed-sd)/86400000)+1)*DAY_W);
+      const pc=this.calc(p);
+      const sc=STATUS[p.status]||STATUS.not_started;
+      const isExpanded=!!ganttExpanded[p.id];
+      const isHL=!anyExpanded||isExpanded;
+      const rowBg=ri%2===0?'white':'#FAFBF9';
+      const milestoneRows=(p.milestones||[]).map((m,mi,arr)=>{
+        const prevM=mi>0?arr[mi-1]:null;
+        const msSD=new Date((prevM?prevM.due:(p.start||p.startDate))+'T00:00:00');
+        const msED=new Date(m.due+'T00:00:00');
+        const msBL=Math.max(0,Math.ceil((msSD-gMinD)/86400000))*DAY_W;
+        const msBW=Math.max(DAY_W,(Math.ceil((msED-msSD)/86400000)+1)*DAY_W);
+        const isIP=!m.done&&today>=msSD&&today<=msED;
+        const isOD=!m.done&&msED<today;
+        const msBg=m.done?'#F0FDF4':isIP?'#FFFBF0':'#F8F9FF';
+        return {...m,showBadge:isIP,
+          rowStyle:{display:'flex',alignItems:'center',height:MS_ROW_H+'px',borderBottom:'1px solid #F0F5EE',background:msBg},
+          labelCellStyle:{width:LABEL_W+'px',flexShrink:0,position:'sticky',left:0,zIndex:10,background:msBg,height:'100%',display:'flex',alignItems:'center',gap:'6px',padding:'0 12px 0 40px',borderRight:'1px solid #D3E8CA'},
+          checkDotStyle:{width:'7px',height:'7px',borderRadius:'50%',flexShrink:0,background:m.done?'#40916C':isIP?'#E8A838':isOD?'#D4685A':'#C8DCC0'},
+          timelineCellStyle:{width:gTimelineW+'px',height:'100%',position:'relative',flexShrink:0},
+          msBarStyle:{position:'absolute',left:msBL+'px',top:'50%',transform:'translateY(-50%)',width:msBW+'px',height:'10px',background:m.done?'#40916C':p.color,borderRadius:'5px',opacity:m.done?0.7:isIP?1:0.4},
+        };
+      });
+      const msList=(p.milestones||[]).map(m=>{
+        const mx=Math.ceil((new Date(m.due+'T00:00:00')-gMinD)/86400000)*DAY_W;
+        return {...m,dotStyle:{position:'absolute',left:Math.max(-4,mx-bl-5)+'px',top:'4px',width:'10px',height:'10px',borderRadius:'50%',background:m.done?'#40916C':'white',border:'2px solid '+(m.done?'#2D6A4F':p.color),boxShadow:'0 0 0 1.5px white',zIndex:3,cursor:'default'}};
+      });
+      return {...pc,name:p.name,isExpanded,milestoneRows,
+        onToggleExpand:()=>this.setState(s=>{const ex={...(s.ganttExpanded||{})};ex[p.id]=!ex[p.id];return{ganttExpanded:ex};}),
+        onClick:()=>this.setState({selId:p.id,showMsForm:false,showFileForm:false}),
+        expandBtnStyle:{width:'18px',height:'18px',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,color:isHL?'#8FAE94':'#CCCCCC',transform:isExpanded?'rotate(90deg)':'rotate(0deg)',transition:'transform 0.15s',background:'none',border:'none',padding:0},
+        rowStyle:{display:'flex',alignItems:'center',height:ROW_H+'px',borderBottom:'1px solid #F0F5EE',background:rowBg},
+        labelCellStyle:{width:LABEL_W+'px',flexShrink:0,position:'sticky',left:0,zIndex:10,background:rowBg,height:'100%',display:'flex',alignItems:'center',gap:'7px',padding:'0 10px 0 12px',borderRight:'1px solid #D3E8CA',cursor:'pointer'},
+        dotStyle:{width:'8px',height:'8px',borderRadius:'50%',background:isHL?p.color:'#D0D0D0',flexShrink:0},
+        textWrapStyle:{minWidth:0,flex:1,color:isHL?'#1A2E1E':'#C0C0C0'},
+        badgeStyle:{fontSize:'10px',fontWeight:'600',color:isHL?sc.color:'#AAAAAA',background:isHL?sc.bg:'#F0F0F0',padding:'1px 5px',borderRadius:'8px',whiteSpace:'nowrap',marginTop:'2px',display:'inline-block'},
+        statusLabel:sc.label,
+        timelineCellStyle:{width:gTimelineW+'px',height:'100%',position:'relative',flexShrink:0,filter:isHL?'none':'grayscale(1) opacity(0.2)',transition:'filter 0.2s'},
+        barStyle:{position:'absolute',left:bl+'px',top:'50%',transform:'translateY(-50%)',width:bw+'px',height:'18px',background:p.color+'33',borderRadius:'9px',cursor:'pointer',overflow:'visible',zIndex:1},
+        progressFillStyle:{position:'absolute',left:0,top:0,width:pc.progress+'%',height:'100%',background:p.color,borderRadius:'9px',opacity:0.85},
+        milestones:msList,
+      };
+    });
+    const totalGanttH=ganttProjects.reduce((h,gp)=>h+ROW_H+(gp.isExpanded?gp.milestoneRows.length*MS_ROW_H:0),0);
+    const gantt={
+      months:ganttMonths,projects:ganttProjects,
+      wrapStyle:{minWidth:(LABEL_W+gTimelineW)+'px',position:'relative'},
+      headerRowStyle:{display:'flex',height:'36px',borderBottom:'2px solid #D3E8CA',background:'#F7FAF5',position:'sticky',top:0,zIndex:20},
+      headerLabelCellStyle:{width:LABEL_W+'px',flexShrink:0,position:'sticky',left:0,zIndex:30,background:'#ECF2E8',display:'flex',alignItems:'center',padding:'0 16px',borderRight:'1px solid #D3E8CA'},
+      headerTimelineStyle:{width:gTimelineW+'px',position:'relative',flexShrink:0,height:'100%',overflow:'hidden'},
+      contentWrapStyle:{position:'relative'},
+      todayLineStyle:{position:'absolute',left:(LABEL_W+gTodayX)+'px',top:0,width:'2px',height:Math.max(ROW_H,totalGanttH)+'px',background:'#2D6A4F',opacity:0.5,zIndex:15,pointerEvents:'none'},
+      headerTodayStyle:{position:'absolute',left:gTodayX+'px',top:0,bottom:0,width:'2px',background:'#2D6A4F',opacity:0.6,pointerEvents:'none'},
+      headerTodayLabelStyle:{position:'absolute',left:(gTodayX-14)+'px',top:'6px',fontSize:'9px',fontWeight:'700',color:'#2D6A4F',whiteSpace:'nowrap',background:'#ECF2E8',padding:'1px 5px',borderRadius:'3px'},
+    };
+
+    const tab=v=>({fontSize:'13px',fontWeight:view===v?'600':'500',cursor:'pointer',padding:'6px 14px',borderRadius:'7px',color:view===v?'#2D6A4F':'#4A6A50',background:view===v?'white':'transparent',boxShadow:view===v?'0 1px 3px rgba(0,0,0,0.07)':'none'});
+    const sortBtn=k=>({fontSize:'12px',fontWeight:projectView===k?'600':'500',padding:'5px 12px',borderRadius:'7px',cursor:'pointer',background:projectView===k?'#2D6A4F':'#ECF2E8',color:projectView===k?'white':'#4A6A50',transition:'all 0.15s'});
+
+    return {
+      // Auth
+      showAuthScreen:!isLoggedIn,
+      showPendingScreen:isPending,
+      showAppScreen:isApproved,
+      isLoginView:authView==='login',
+      isSignupView:authView==='signup',
+      isAdmin, pendingCount, hasPending:pendingCount>0,
+      showUserPanel, totalUsers:authUsers.length, allUsers,
+      currentUserName:currentUser?currentUser.name:'',
+      authForm, hasAuthError:!!authForm.error,
+      goToSignup:()=>this.setState({authView:'signup',authForm:{name:'',email:'',password:'',error:''}}),
+      goToLogin:()=>this.setState({authView:'login',authForm:{name:'',email:'',password:'',error:''}}),
+      onAuthName:e=>this.setState(s=>({authForm:{...s.authForm,name:e.target.value,error:''}})),
+      onAuthEmail:e=>this.setState(s=>({authForm:{...s.authForm,email:e.target.value,error:''}})),
+      onAuthPassword:e=>this.setState(s=>({authForm:{...s.authForm,password:e.target.value,error:''}})),
+      submitLogin:()=>this.login(),
+      submitSignup:()=>this.signup(),
+      handleLogout:()=>this.logout(),
+      openUserPanel:()=>this.setState({showUserPanel:true}),
+      closeUserPanel:()=>this.setState({showUserPanel:false}),
+      adminBtnStyle:{display:'flex',alignItems:'center',gap:'6px',fontSize:'13px',fontWeight:'600',color:'#2D6A4F',background:'#ECF2E8',border:'1px solid #C3D9BB',borderRadius:'8px',padding:'0 14px',height:'36px',flexShrink:0,cursor:'pointer'},
+
+      // View
+      isDashboard:view==='dashboard', isArchive:view==='archive',
+      showModal:!!selId, showAddProject, showMsForm, showMsBtn:!showMsForm, showFileForm, showFileBtn:!showFileForm,
+      goToDashboard:()=>this.setState({view:'dashboard'}),
+      goToArchive:()=>this.setState({view:'archive'}),
+      dashTabStyle:tab('dashboard'), archTabStyle:tab('archive'),
+      gantt,
+
+      // Data
+      projectCards, projectRows,
+      archivedCards:archived.map(p=>({...this.calc(p),onRestore:()=>this.restore(p.id)})),
+      thisWeekMilestones, thisWeekCount:thisWeekMilestones.length,
+      kanbanToday, kanbanUpcoming, kanbanDone,
+      kanbanTodayCount:kanbanToday.length, kanbanUpcomingCount:kanbanUpcoming.length, kanbanDoneCount:kanbanDone.length,
+      noKanbanToday:kanbanToday.length===0, noKanbanUpcoming:kanbanUpcoming.length===0, noKanbanDone:kanbanDone.length===0,
+      activeCount:active.length, archivedCount:archived.length, noArchived:archived.length===0,
+      noWeek:thisWeekMilestones.length===0,
+      rowHover:{background:'#F7FAF5'},
+
+      // Calendar
+      calDays, calMonthStr:calDate.toLocaleDateString('ko-KR',{year:'numeric',month:'long'}),
+      dayHeaders:['월','화','수','목','금','토','일'].map(l=>({label:l})),
+      prevMonth:()=>this.setState(s=>{const d=new Date(s.calDate);d.setMonth(d.getMonth()-1);return{calDate:d};}),
+      nextMonth:()=>this.setState(s=>{const d=new Date(s.calDate);d.setMonth(d.getMonth()+1);return{calDate:d};}),
+
+      // Dates
+      todayStr:today.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'}),
+      todayShortStr:today.toLocaleDateString('ko-KR',{month:'short',day:'numeric'}),
+      weekStr:(wStart.getMonth()+1)+'/'+wStart.getDate()+' ~ '+(wEnd.getMonth()+1)+'/'+wEnd.getDate(),
+
+      // Modal
+      modal, statusOpts, memberOpts,
+      closeModal:()=>this.setState({selId:null}),
+      stopProp:e=>e.stopPropagation(),
+
+      // Ms form
+      newMsName,newMsDue,onMsName:e=>this.setState({newMsName:e.target.value}),onMsDue:e=>this.setState({newMsDue:e.target.value}),
+      openMsForm:()=>this.setState({showMsForm:true}),cancelMs:()=>this.setState({showMsForm:false,newMsName:'',newMsDue:''}),submitMs:()=>this.addMs(),
+
+      // File form
+      newFileName,newFileUrl,onFileName:e=>this.setState({newFileName:e.target.value}),onFileUrl:e=>this.setState({newFileUrl:e.target.value}),
+      openFileForm:()=>this.setState({showFileForm:true}),cancelFile:()=>this.setState({showFileForm:false,newFileName:'',newFileUrl:''}),submitFile:()=>this.addFile(),
+
+      // Add project
+      addForm,openAddProject:()=>this.setState({showAddProject:true}),
+      closeAdd:()=>this.setState({showAddProject:false,addForm:{name:'',startDate:'',endDate:'',desc:'',color:COLORS[0]}}),
+      onAddName:e=>this.setState(s=>({addForm:{...s.addForm,name:e.target.value}})),
+      onAddStart:e=>this.setState(s=>({addForm:{...s.addForm,startDate:e.target.value}})),
+      onAddEnd:e=>this.setState(s=>({addForm:{...s.addForm,endDate:e.target.value}})),
+      onAddDesc:e=>this.setState(s=>({addForm:{...s.addForm,desc:e.target.value}})),
+      addColorOptions:COLORS.map(c=>({swatchStyle:{width:'28px',height:'28px',borderRadius:'50%',background:c,cursor:'pointer',boxShadow:(addForm.color||COLORS[0])===c?'0 0 0 2.5px white,0 0 0 4.5px '+c:'none',transform:(addForm.color||COLORS[0])===c?'scale(1.18)':'scale(1)',transition:'all 0.15s',flexShrink:0},onClick:()=>this.setState(s=>({addForm:{...s.addForm,color:c}}))})),
+      submitAdd:()=>this.addProject(),
+
+      // Project view
+      setPvList:()=>this.setState({projectView:'list'}),
+      setPvGantt:()=>this.setState({projectView:'gantt'}),
+      setPvCal:()=>this.setState({projectView:'calendar'}),
+      pvListStyle:sortBtn('list'), pvGanttStyle:sortBtn('gantt'), pvCalStyle:sortBtn('calendar'),
+      isPvList:projectView==='list'||!projectView,
+      isPvGantt:projectView==='gantt',
+      isPvCal:projectView==='calendar',
+    };
+  }
+}
+</script>
+</body>
+</html>
