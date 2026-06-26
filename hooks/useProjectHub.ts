@@ -116,7 +116,7 @@ export function useProjectHub() {
     let mounted = true;
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (!mounted) return;
 
         if (event === "SIGNED_OUT") {
@@ -133,16 +133,11 @@ export function useProjectHub() {
             event === "TOKEN_REFRESHED" ||
             event === "INITIAL_SESSION")
         ) {
-          await refreshCurrentUser(session.user.id);
+          // await 사용 시 signInWithPassword가 블로킹될 수 있음
+          void refreshCurrentUser(session.user.id);
         }
       }
     );
-
-    void supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user && mounted) {
-        await refreshCurrentUser(session.user.id);
-      }
-    });
 
     return () => {
       mounted = false;
@@ -314,11 +309,12 @@ export function useProjectHub() {
         void loadApprovedMembers(result.user);
       }
       setAuthForm({ name: "", email: "", password: "", error: "" });
-    } catch {
-      setAuthForm((f) => ({
-        ...f,
-        error: "로그인 요청이 시간 초과되었습니다. 다시 시도해주세요.",
-      }));
+    } catch (e) {
+      const message =
+        e instanceof Error && e.message === "timeout"
+          ? "로그인 요청이 시간 초과되었습니다. 다시 시도해주세요."
+          : "로그인 중 오류가 발생했습니다. 다시 시도해주세요.";
+      setAuthForm((f) => ({ ...f, error: message }));
     } finally {
       setAuthLoading(false);
     }

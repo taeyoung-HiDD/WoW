@@ -180,14 +180,10 @@ export async function signIn(
     return { user: null, error: "Supabase가 설정되지 않았습니다" };
   }
 
-  const { data, error } = await withTimeout(
-    supabase.auth.signInWithPassword({
-      email: email.trim().toLowerCase(),
-      password,
-    }),
-    12000,
-    "timeout"
-  );
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.trim().toLowerCase(),
+    password,
+  });
 
   if (error) {
     return { user: null, error: mapAuthError(error.message) };
