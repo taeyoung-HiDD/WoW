@@ -8,7 +8,7 @@ import {
   STATUS,
 } from "@/lib/constants";
 import type { Project } from "@/lib/types";
-import { calcProgress, milestoneEnd, milestoneStart } from "@/lib/utils";
+import { calcProgress, milestoneEnd, milestoneStart, projectEffectiveEnd } from "@/lib/utils";
 
 interface GanttViewProps {
   projects: Project[];
@@ -34,7 +34,11 @@ export function GanttView({
     : new Date(today);
   let gMaxD = projects.length
     ? new Date(
-        Math.max(...projects.map((p) => new Date(p.end + "T00:00:00").getTime()))
+        Math.max(
+          ...projects.map((p) =>
+            new Date(projectEffectiveEnd(p, today) + "T00:00:00").getTime()
+          )
+        )
       )
     : new Date(today);
 
@@ -132,7 +136,7 @@ export function GanttView({
 
               {projects.map((p, ri) => {
                 const sd = new Date(p.start + "T00:00:00");
-                const ed = new Date(p.end + "T00:00:00");
+                const ed = new Date(projectEffectiveEnd(p, today) + "T00:00:00");
                 const bl =
                   Math.max(0, Math.ceil((sd.getTime() - gMinD.getTime()) / 86400000)) *
                   GANTT_DAY_W;

@@ -2,7 +2,7 @@
 
 import { MemberAvatars } from "./Avatar";
 import type { Project, ProjectMember } from "@/lib/types";
-import { calcProgress, fmt } from "@/lib/utils";
+import { calcProgress, formatProjectRange } from "@/lib/utils";
 
 interface ArchiveViewProps {
   projects: Project[];
@@ -42,7 +42,7 @@ export function ArchiveView({ projects, onRestore, onDelete, membersLookup }: Ar
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-sm text-hub-text">{p.name}</div>
                   <div className="text-xs text-hub-muted mt-0.5">
-                    {fmt(p.start)} ~ {fmt(p.end)} · {done}/{total} 완료
+                    {formatProjectRange(p.start, p.end)} · {done}/{total} 완료
                   </div>
                 </div>
                 <MemberAvatars memberIds={p.members} membersLookup={membersLookup} />

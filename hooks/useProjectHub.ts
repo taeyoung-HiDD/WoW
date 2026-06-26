@@ -488,13 +488,13 @@ export function useProjectHub() {
   };
 
   const addProject = () => {
-    if (!addForm.name.trim() || !addForm.startDate || !addForm.endDate) return;
+    if (!addForm.name.trim() || !addForm.startDate) return;
     const np: Project = {
       id: "p_" + Date.now(),
       name: addForm.name.trim(),
       desc: addForm.desc || "",
       start: addForm.startDate,
-      end: addForm.endDate,
+      end: addForm.endDate || "",
       status: "not_started",
       color: addForm.color || COLORS[projects.length % COLORS.length],
       milestones: [],

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { COLORS, STATUS } from "@/lib/constants";
 import type { Project, ProjectMember, ProjectStatus } from "@/lib/types";
-import { resolveProjectMembers, milestoneStart, milestoneEnd } from "@/lib/utils";
+import { resolveProjectMembers, milestoneStart, milestoneEnd, formatProjectRange } from "@/lib/utils";
 import { fmt } from "@/lib/utils";
 import { FileIcon } from "./icons";
 
@@ -114,7 +114,7 @@ export function AddProjectModal({
             </div>
             <div>
               <label className="text-xs font-semibold text-hub-secondary block mb-1.5">
-                종료일 *
+                종료일 (선택)
               </label>
               <input
                 type="date"
@@ -335,7 +335,7 @@ export function ProjectModal({
               {project.desc || "설명 없음"}
             </div>
             <div className="text-[11px] text-hub-muted mt-0.5">
-              {fmt(project.start)} ~ {fmt(project.end)} · {done}/{total} 마일스톤 완료
+              {formatProjectRange(project.start, project.end)} · {done}/{total} 마일스톤 완료
             </div>
           </div>
         </div>

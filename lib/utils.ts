@@ -32,14 +32,35 @@ export function fmt(
   d: string,
   opts?: Intl.DateTimeFormatOptions
 ): string {
+  if (!d) return "";
   try {
-    return new Date(d + "T00:00:00").toLocaleDateString("ko-KR", opts ?? {
+    const date = new Date(d + "T00:00:00");
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toLocaleDateString("ko-KR", opts ?? {
       month: "short",
       day: "numeric",
     });
   } catch {
     return "";
   }
+}
+
+export function formatProjectRange(start: string, end: string): string {
+  if (!end) return `${fmt(start)} ~ 미정`;
+  return `${fmt(start)} ~ ${fmt(end)}`;
+}
+
+export function projectEffectiveEnd(
+  project: Project,
+  fallback: Date = todayAtMidnight()
+): string {
+  if (project.end) return project.end;
+  const msEnds = project.milestones
+    .map((m) => milestoneEnd(m))
+    .filter(Boolean)
+    .sort();
+  if (msEnds.length > 0) return msEnds[msEnds.length - 1];
+  return fallback.toISOString().slice(0, 10);
 }
 
 export function todayAtMidnight(): Date {

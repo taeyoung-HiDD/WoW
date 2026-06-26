@@ -15,9 +15,11 @@ export function ProjectListView({
   onOpenProject,
   membersLookup,
 }: ProjectListViewProps) {
-  const sorted = [...projects].sort(
-    (a, b) => new Date(a.end).getTime() - new Date(b.end).getTime()
-  );
+  const sorted = [...projects].sort((a, b) => {
+    const aEnd = a.end || a.start;
+    const bEnd = b.end || b.start;
+    return new Date(aEnd).getTime() - new Date(bEnd).getTime();
+  });
 
   return (
     <>
@@ -65,7 +67,7 @@ export function ProjectListView({
               </div>
               <div className="text-[11px] text-hub-muted leading-snug">
                 <div>{fmt(p.start)}</div>
-                <div>~ {fmt(p.end)}</div>
+                <div>{p.end ? `~ ${fmt(p.end)}` : "~ 미정"}</div>
               </div>
               <div className="min-w-0">
                 <div className="text-xs font-medium text-hub-text truncate">

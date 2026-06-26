@@ -42,7 +42,7 @@ export interface Database {
           name: string;
           description: string;
           start_date: string;
-          end_date: string;
+          end_date: string | null;
           status: string;
           color: string;
           notes: string;
@@ -58,7 +58,7 @@ export interface Database {
           name: string;
           description?: string;
           start_date: string;
-          end_date: string;
+          end_date?: string | null;
           status?: string;
           color: string;
           notes?: string;
@@ -74,7 +74,7 @@ export interface Database {
           name?: string;
           description?: string;
           start_date?: string;
-          end_date?: string;
+          end_date?: string | null;
           status?: string;
           color?: string;
           notes?: string;
