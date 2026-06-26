@@ -202,3 +202,74 @@ export function getMemberNames(
       .join(" · ") || "미지정"
   );
 }
+
+export function scheduleNeedsPersist(before: Project, after: Project): boolean {
+  if (before.status !== after.status) return true;
+  if (before.archived !== after.archived) return true;
+  if (before.milestones.length !== after.milestones.length) return true;
+  return before.milestones.some((m, i) => {
+    const a = after.milestones[i];
+    if (!a) return true;
+    return (
+      m.done !== a.done ||
+      m.start !== a.start ||
+      m.end !== a.end ||
+      milestoneEnd(m) !== milestoneEnd(a)
+    );
+  });
+}
+
+/** 마일스톤·프로젝트 상태를 오늘 날짜 기준으로 자동 반영 */
+export function applyScheduleSync(
+  project: Project,
+  today: Date = todayAtMidnight()
+): Project {
+  if (project.archived) return project;
+
+  const day = today.getTime();
+  let milestones = normalizeProjectMilestones(project).milestones.map((m) => {
+    const end = parseDateDay(milestoneEnd(m));
+    if (!m.done && end.getTime() < day) {
+      return { ...m, done: true };
+    }
+    return m;
+  });
+
+  const start = parseDateDay(project.start);
+  const started = start.getTime() <= day;
+  const hasEnd = !!project.end;
+  const projectPastEnd =
+    hasEnd && parseDateDay(project.end).getTime() < day;
+
+  if (projectPastEnd) {
+    milestones = milestones.map((m) => ({ ...m, done: true }));
+  }
+
+  const allDone =
+    milestones.length > 0 && milestones.every((m) => m.done);
+  const allMilestonesPast =
+    milestones.length > 0 &&
+    milestones.every((m) => parseDateDay(milestoneEnd(m)).getTime() < day);
+
+  let status = project.status;
+  let archived: boolean = project.archived;
+
+  if (projectPastEnd) {
+    status = "completed";
+    archived = true;
+  } else if (allDone) {
+    status = "completed";
+    if (allMilestonesPast) archived = true;
+  } else if (started && status === "not_started") {
+    status = "in_progress";
+  }
+
+  return { ...project, milestones, status, archived };
+}
+
+export function syncProjectsSchedule(
+  projects: Project[],
+  today: Date = todayAtMidnight()
+): Project[] {
+  return projects.map((p) => applyScheduleSync(p, today));
+}

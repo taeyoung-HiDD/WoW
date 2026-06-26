@@ -38,6 +38,9 @@ import {
   milestoneOverlapsRange,
   parseDateDay,
   todayAtMidnight,
+  applyScheduleSync,
+  scheduleNeedsPersist,
+  syncProjectsSchedule,
 } from "@/lib/utils";
 
 export function useProjectHub() {
@@ -85,7 +88,15 @@ export function useProjectHub() {
       await insertProjects(INITIAL_PROJECTS);
       loaded = INITIAL_PROJECTS;
     }
-    setProjects(loaded);
+
+    const today = todayAtMidnight();
+    const synced = syncProjectsSchedule(loaded, today);
+    synced.forEach((project, i) => {
+      if (scheduleNeedsPersist(loaded[i], project)) {
+        void upsertProject(project);
+      }
+    });
+    setProjects(synced);
   }, []);
 
   const loadAdminUsers = useCallback(async (user: AuthUser) => {
@@ -152,6 +163,29 @@ export function useProjectHub() {
     };
   }, [refreshCurrentUser]);
 
+  const today = todayAtMidnight();
+
+  useEffect(() => {
+    if (!currentUser || currentUser.status !== "approved" || projects.length === 0) {
+      return;
+    }
+
+    const syncDay = todayAtMidnight();
+    setProjects((prev) => {
+      let changed = false;
+      const next = prev.map((project) => {
+        const synced = applyScheduleSync(project, syncDay);
+        if (scheduleNeedsPersist(project, synced)) {
+          changed = true;
+          void upsertProject(synced);
+          return synced;
+        }
+        return project;
+      });
+      return changed ? next : prev;
+    });
+  }, [currentUser?.id, projects.length, today.getTime()]);
+
   const syncProject = useCallback((project: Project) => {
     void upsertProject(project);
   }, []);
@@ -171,7 +205,6 @@ export function useProjectHub() {
     [syncProject]
   );
 
-  const today = todayAtMidnight();
   const { wStart, wEnd } = useMemo(() => getWeekRange(today), [today.getTime()]);
   const { nwStart, nwEnd } = useMemo(() => getNextWeekRange(today), [today.getTime()]);
 
@@ -203,15 +236,23 @@ export function useProjectHub() {
 
         const activeToday = isMilestoneActiveOn(m, proj, idx, today);
         const overdue = isMilestoneOverdue(m, proj, idx, today);
-        const overlapsThisWeek = milestoneOverlapsRange(m, proj, idx, wStart, wEnd);
         const overlapsNextWeek = milestoneOverlapsRange(m, proj, idx, nwStart, nwEnd);
         const msStart = parseDateDay(milestoneStart(m, proj, idx));
+        const msEnd = parseDateDay(milestoneEnd(m));
 
         if (activeToday || overdue) {
           kanbanToday.push(item);
-        } else if (overlapsThisWeek && msStart.getTime() > today.getTime()) {
+        }
+
+        const endsLaterThisWeek =
+          msEnd.getTime() > today.getTime() && msEnd.getTime() <= wEnd.getTime();
+        const startsLaterThisWeek =
+          msStart.getTime() > today.getTime() && msStart.getTime() <= wEnd.getTime();
+        if (endsLaterThisWeek || startsLaterThisWeek) {
           kanbanUpcoming.push(item);
-        } else if (overlapsNextWeek) {
+        }
+
+        if (overlapsNextWeek) {
           kanbanNextWeek.push(item);
         }
       });
@@ -224,11 +265,16 @@ export function useProjectHub() {
     kanbanUpcoming.sort(byEnd);
     kanbanNextWeek.sort(byEnd);
 
+    const taskKeys = new Set<string>();
+    for (const item of [...kanbanToday, ...kanbanUpcoming, ...kanbanNextWeek]) {
+      taskKeys.add(`${item.projectId}:${item.id}`);
+    }
+
     return {
       kanbanToday,
       kanbanUpcoming,
       kanbanNextWeek,
-      taskCount: kanbanToday.length + kanbanUpcoming.length + kanbanNextWeek.length,
+      taskCount: taskKeys.size,
     };
   }, [active, today, wStart, wEnd, nwStart, nwEnd]);
 
