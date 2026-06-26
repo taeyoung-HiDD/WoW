@@ -118,39 +118,51 @@ export function useProjectHub() {
 
     let mounted = true;
 
-    const init = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!mounted) return;
 
-      if (session?.user && mounted) {
-        await refreshCurrentUser(session.user.id);
+        if (event === "SIGNED_OUT") {
+          setCurrentUser(null);
+          setProjects([]);
+          setAuthUsers([]);
+          setApprovedMembers([]);
+          return;
+        }
+
+        if (
+          session?.user &&
+          (event === "SIGNED_IN" ||
+            event === "TOKEN_REFRESHED" ||
+            event === "INITIAL_SESSION")
+        ) {
+          await refreshCurrentUser(session.user.id);
+        }
       }
+    );
+
+    const hydrationTimeout = setTimeout(() => {
       if (mounted) setHydrated(true);
-    };
+    }, 3000);
 
-    void init();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
-
-      if (event === "SIGNED_OUT") {
-        setCurrentUser(null);
-        setProjects([]);
-        setAuthUsers([]);
-        setApprovedMembers([]);
-        return;
-      }
-
-      if (session?.user && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED")) {
-        await refreshCurrentUser(session.user.id);
-      }
-    });
+    void supabase.auth
+      .getSession()
+      .then(async ({ data: { session } }) => {
+        if (session?.user && mounted) {
+          await refreshCurrentUser(session.user.id);
+        }
+      })
+      .catch(() => {
+        /* ignore auth init errors */
+      })
+      .finally(() => {
+        clearTimeout(hydrationTimeout);
+        if (mounted) setHydrated(true);
+      });
 
     return () => {
       mounted = false;
+      clearTimeout(hydrationTimeout);
       subscription.unsubscribe();
     };
   }, [refreshCurrentUser]);

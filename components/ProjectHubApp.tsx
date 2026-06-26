@@ -30,14 +30,47 @@ export default function ProjectHubApp() {
   }
 
   if (hub.configError) {
+    const isLocal =
+      typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1");
+
     return (
       <div className="min-h-screen bg-hub-bg flex items-center justify-center p-6">
-        <div className="bg-white rounded-[20px] p-10 w-full max-w-[440px] shadow-[0_8px_40px_rgba(26,46,30,0.12)] text-center">
-          <div className="text-[17px] font-bold text-hub-text mb-3">Supabase 설정 필요</div>
-          <p className="text-sm text-hub-secondary leading-relaxed">
-            <code className="text-xs bg-hub-bg px-1.5 py-0.5 rounded">.env.local</code> 파일에
-            Supabase URL과 anon key를 입력한 뒤 개발 서버를 재시작해주세요.
-          </p>
+        <div className="bg-white rounded-[20px] p-10 w-full max-w-[480px] shadow-[0_8px_40px_rgba(26,46,30,0.12)]">
+          <div className="text-[17px] font-bold text-hub-text mb-3 text-center">
+            Supabase 설정 필요
+          </div>
+          {isLocal ? (
+            <p className="text-sm text-hub-secondary leading-relaxed text-center">
+              <code className="text-xs bg-hub-bg px-1.5 py-0.5 rounded">.env.local</code>에
+              Supabase URL과 anon key를 입력한 뒤{" "}
+              <strong className="font-semibold text-hub-text">개발 서버를 재시작</strong>
+              해주세요.
+            </p>
+          ) : (
+            <div className="text-sm text-hub-secondary leading-relaxed space-y-3">
+              <p>
+                Vercel 배포 환경에 Supabase 환경 변수가 없거나, 변수 추가 후{" "}
+                <strong className="font-semibold text-hub-text">재배포</strong>가 되지
+                않았습니다.
+              </p>
+              <ol className="list-decimal list-inside space-y-1.5 text-[13px]">
+                <li>Vercel → Project → Settings → Environment Variables</li>
+                <li>
+                  <code className="text-xs bg-hub-bg px-1 py-0.5 rounded">
+                    NEXT_PUBLIC_SUPABASE_URL
+                  </code>
+                  ,{" "}
+                  <code className="text-xs bg-hub-bg px-1 py-0.5 rounded">
+                    NEXT_PUBLIC_SUPABASE_ANON_KEY
+                  </code>{" "}
+                  등록
+                </li>
+                <li>Deployments → 최신 배포 → Redeploy</li>
+              </ol>
+            </div>
+          )}
         </div>
       </div>
     );
