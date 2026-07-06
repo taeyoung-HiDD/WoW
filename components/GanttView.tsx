@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, useState, useEffect } from "react";
 import {
   GANTT_DAY_W,
   GANTT_LABEL_W,
@@ -27,6 +27,15 @@ export function GanttView({
   today,
 }: GanttViewProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [labelW, setLabelW] = useState(GANTT_LABEL_W);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setLabelW(mq.matches ? 132 : GANTT_LABEL_W);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   let gMinD = projects.length
     ? new Date(
@@ -59,11 +68,11 @@ export function GanttView({
     const el = scrollRef.current;
     if (!el) return;
 
-    const todayLeft = GANTT_LABEL_W + gTodayX;
+    const todayLeft = labelW + gTodayX;
     const target = todayLeft - el.clientWidth / 2;
     const maxScroll = el.scrollWidth - el.clientWidth;
     el.scrollLeft = Math.max(0, Math.min(target, maxScroll));
-  }, [gTodayX, projects.length, anyExpanded]);
+  }, [gTodayX, projects.length, anyExpanded, labelW]);
 
   const months: { label: string; left: number }[] = [];
   const gMC = new Date(gMinD.getFullYear(), gMinD.getMonth(), 1);
@@ -98,14 +107,14 @@ export function GanttView({
       <div className="rounded-xl border border-hub-border overflow-hidden bg-white">
         <div
           ref={scrollRef}
-          className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-220px)] scrollbar-hub"
+          className="overflow-x-auto overflow-y-auto max-h-[calc(100dvh-280px)] sm:max-h-[calc(100vh-220px)] scrollbar-hub -webkit-overflow-scrolling-touch"
         >
-          <div style={{ minWidth: GANTT_LABEL_W + gTimelineW }} className="relative">
+          <div style={{ minWidth: labelW + gTimelineW }} className="relative">
             {/* Header */}
             <div className="flex h-9 border-b-2 border-hub-border bg-[#F7FAF5] sticky top-0 z-20">
               <div
                 className="shrink-0 sticky left-0 z-30 bg-hub-surface flex items-center px-4 border-r border-hub-border"
-                style={{ width: GANTT_LABEL_W }}
+                style={{ width: labelW }}
               >
                 <span className="text-[11px] font-bold text-hub-secondary">프로젝트</span>
               </div>
@@ -145,7 +154,7 @@ export function GanttView({
               <div
                 className="absolute top-0 w-0.5 bg-hub-primary opacity-50 z-[15] pointer-events-none"
                 style={{
-                  left: GANTT_LABEL_W + gTodayX,
+                  left: labelW + gTodayX,
                   height: Math.max(GANTT_ROW_H, totalH),
                 }}
               />
@@ -174,7 +183,7 @@ export function GanttView({
                     >
                       <div
                         className="shrink-0 sticky left-0 z-10 h-full flex items-center gap-1.5 px-3 border-r border-hub-border cursor-pointer"
-                        style={{ width: GANTT_LABEL_W, background: rowBg }}
+                        style={{ width: labelW, background: rowBg }}
                         onClick={() => onToggleExpand(p.id)}
                       >
                         <button
@@ -289,7 +298,7 @@ export function GanttView({
                           >
                             <div
                               className="shrink-0 sticky left-0 z-10 h-full flex items-center gap-1.5 pl-10 pr-3 border-r border-hub-border"
-                              style={{ width: GANTT_LABEL_W, background: msBg }}
+                              style={{ width: labelW, background: msBg }}
                             >
                               <div
                                 className="w-[7px] h-[7px] rounded-full shrink-0"

@@ -191,14 +191,14 @@ export function KanbanBoard({
   membersLookup,
 }: KanbanBoardProps) {
   return (
-    <div className="pt-[26px]">
-      <div className="flex items-center gap-2.5 mb-3.5">
+    <div className="pt-4 sm:pt-[26px]">
+      <div className="flex items-center gap-2 sm:gap-2.5 mb-3.5 flex-wrap">
         <span className="text-[11px] font-bold text-hub-secondary uppercase tracking-widest">
           할 일
         </span>
         <span className="text-xs text-hub-muted">{weekStr}</span>
-        <div className="flex-1 h-px bg-hub-border" />
-        <span className="text-xs text-hub-muted">{taskCount}개 마일스톤</span>
+        <div className="hidden sm:block flex-1 h-px bg-hub-border" />
+        <span className="text-xs text-hub-muted sm:ml-auto">{taskCount}개 마일스톤</span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">

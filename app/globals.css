@@ -31,6 +31,7 @@
   html,
   body {
     @apply h-full bg-hub-bg text-hub-text antialiased;
+    overflow-x: clip;
   }
 
   button {

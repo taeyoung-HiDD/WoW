@@ -79,12 +79,12 @@ export function AddProjectModal({
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-6"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6"
       style={{ background: "var(--color-hub-overlay)" }}
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-[18px] w-full max-w-[460px] p-7 animate-fade-up"
+        className="bg-white rounded-[18px] w-full max-w-[460px] p-5 sm:p-7 animate-fade-up max-h-[calc(100dvh-2rem)] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-[17px] font-bold text-hub-text mb-5">새 프로젝트 추가</h2>
@@ -100,7 +100,7 @@ export function AddProjectModal({
               className={inputClass}
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-semibold text-hub-secondary block mb-1.5">
                 시작일 *
@@ -258,16 +258,16 @@ export function ProjectModal({
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-start justify-center py-10 px-5 overflow-y-auto"
+      className="fixed inset-0 z-[200] flex items-start justify-center py-4 sm:py-10 px-4 sm:px-5 overflow-y-auto"
       style={{ background: "var(--color-hub-overlay)" }}
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-[18px] w-full max-w-[590px] flex flex-col max-h-[calc(100vh-80px)] animate-fade-up"
+        className="bg-white rounded-[18px] w-full max-w-[590px] flex flex-col max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100vh-80px)] animate-fade-up"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-6 pt-6 shrink-0">
-          <div className="flex items-start justify-between gap-3 mb-3.5">
+        <div className="px-4 sm:px-6 pt-5 sm:pt-6 shrink-0">
+          <div className="flex items-start justify-between gap-2 sm:gap-3 mb-3.5">
             <div className="flex items-center gap-2.5 min-w-0">
               <div
                 className="w-2.5 h-2.5 rounded-full shrink-0"
@@ -340,7 +340,7 @@ export function ProjectModal({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 pb-7 pt-4 flex flex-col gap-5">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-5 sm:pb-7 pt-4 flex flex-col gap-5">
           <div>
             <div className="text-[11px] font-bold text-hub-secondary uppercase tracking-widest mb-2.5">
               담당자
@@ -472,20 +472,20 @@ export function ProjectModal({
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex items-center gap-1 shrink-0 w-full sm:w-auto justify-end sm:justify-start">
                       <input
                         type="date"
                         value={m.start}
                         onChange={(e) => onMilestoneDateChange(m.id, "start", e.target.value)}
-                        className="border border-hub-border rounded-md px-1.5 py-1 text-[11px] outline-none bg-white w-[118px]"
+                        className="border border-hub-border rounded-md px-1.5 py-1 text-[11px] outline-none bg-white w-full sm:w-[118px] min-w-0"
                         title="시작일"
                       />
-                      <span className="text-[10px] text-hub-muted">~</span>
+                      <span className="text-[10px] text-hub-muted shrink-0">~</span>
                       <input
                         type="date"
                         value={m.end}
                         onChange={(e) => onMilestoneDateChange(m.id, "end", e.target.value)}
-                        className="border border-hub-border rounded-md px-1.5 py-1 text-[11px] outline-none bg-white w-[118px]"
+                        className="border border-hub-border rounded-md px-1.5 py-1 text-[11px] outline-none bg-white w-full sm:w-[118px] min-w-0"
                         style={{
                           color: m.done ? "#8FAE94" : isOverdue ? "#B91C1C" : "#5A6B5E",
                         }}
@@ -659,12 +659,12 @@ export function UserPanel({ open, users, onClose, onApprove, onReject }: UserPan
 
   return (
     <div
-      className="fixed inset-0 z-[300] flex items-start justify-center py-10 px-5 overflow-y-auto"
+      className="fixed inset-0 z-[300] flex items-start justify-center py-4 sm:py-10 px-4 sm:px-5 overflow-y-auto"
       style={{ background: "var(--color-hub-overlay)" }}
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-[18px] w-full max-w-[560px] p-7 animate-fade-up"
+        className="bg-white rounded-[18px] w-full max-w-[560px] p-5 sm:p-7 animate-fade-up max-h-[calc(100dvh-2rem)] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">
@@ -686,51 +686,61 @@ export function UserPanel({ open, users, onClose, onApprove, onReject }: UserPan
             return (
               <div
                 key={user.id}
-                className="flex items-center gap-2.5 py-3 border-b border-[#F0F5EE]"
+                className="flex flex-col sm:flex-row sm:items-center gap-2.5 py-3 border-b border-[#F0F5EE]"
               >
-                <div
-                  className="w-9 h-9 rounded-full text-sm font-bold flex items-center justify-center shrink-0"
-                  style={{
-                    background: user.role === "admin" ? "#EDC651" : "#8FAE94",
-                    color: user.role === "admin" ? "#1A2E1E" : "white",
-                  }}
-                >
-                  {user.name?.[0] ?? "?"}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-semibold text-sm text-hub-text">{user.name}</span>
-                    {user.role === "admin" && (
-                      <span className="text-[10px] bg-hub-surface text-hub-primary px-1.5 py-0.5 rounded-md font-semibold">
-                        관리자
-                      </span>
-                    )}
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div
+                    className="w-9 h-9 rounded-full text-sm font-bold flex items-center justify-center shrink-0"
+                    style={{
+                      background: user.role === "admin" ? "#EDC651" : "#8FAE94",
+                      color: user.role === "admin" ? "#1A2E1E" : "white",
+                    }}
+                  >
+                    {user.name?.[0] ?? "?"}
                   </div>
-                  <div className="text-xs text-hub-muted mt-px">{user.email}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-semibold text-sm text-hub-text">{user.name}</span>
+                      {user.role === "admin" && (
+                        <span className="text-[10px] bg-hub-surface text-hub-primary px-1.5 py-0.5 rounded-md font-semibold">
+                          관리자
+                        </span>
+                      )}
+                      <span
+                        className="text-[11px] font-semibold px-2 py-0.5 rounded-[10px] whitespace-nowrap sm:hidden"
+                        style={{ color: sc.color, background: sc.bg }}
+                      >
+                        {sc.label}
+                      </span>
+                    </div>
+                    <div className="text-xs text-hub-muted mt-px truncate">{user.email}</div>
+                  </div>
                 </div>
-                <div className="text-[11px] text-hub-muted shrink-0">{user.createdAt}</div>
-                <span
-                  className="text-[11px] font-semibold px-2 py-0.5 rounded-[10px] shrink-0 whitespace-nowrap"
-                  style={{ color: sc.color, background: sc.bg }}
-                >
-                  {sc.label}
-                </span>
-                {user.status !== "approved" && (
-                  <button
-                    onClick={() => onApprove(user.id)}
-                    className="bg-green-100 text-green-800 rounded-[7px] px-3 py-1 text-xs font-semibold shrink-0"
+                <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap sm:shrink-0">
+                  <div className="text-[11px] text-hub-muted shrink-0 hidden sm:block">{user.createdAt}</div>
+                  <span
+                    className="text-[11px] font-semibold px-2 py-0.5 rounded-[10px] shrink-0 whitespace-nowrap hidden sm:inline"
+                    style={{ color: sc.color, background: sc.bg }}
                   >
-                    승인
-                  </button>
-                )}
-                {user.status !== "rejected" && (
-                  <button
-                    onClick={() => onReject(user.id)}
-                    className="bg-red-100 text-red-700 rounded-[7px] px-3 py-1 text-xs font-semibold shrink-0"
-                  >
-                    거절
-                  </button>
-                )}
+                    {sc.label}
+                  </span>
+                  {user.status !== "approved" && (
+                    <button
+                      onClick={() => onApprove(user.id)}
+                      className="bg-green-100 text-green-800 rounded-[7px] px-3 py-1 text-xs font-semibold shrink-0"
+                    >
+                      승인
+                    </button>
+                  )}
+                  {user.status !== "rejected" && (
+                    <button
+                      onClick={() => onReject(user.id)}
+                      className="bg-red-100 text-red-700 rounded-[7px] px-3 py-1 text-xs font-semibold shrink-0"
+                    >
+                      거절
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}

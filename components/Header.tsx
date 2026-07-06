@@ -34,62 +34,141 @@ export function Header({
         : "font-medium text-hub-secondary"
     }`;
 
+  const mobileTabClass = (v: AppView) =>
+    `flex-1 text-[12px] px-2 py-1.5 rounded-[7px] transition-all text-center ${
+      view === v
+        ? "font-semibold text-hub-primary bg-white shadow-[0_1px_3px_rgba(0,0,0,0.07)]"
+        : "font-medium text-hub-secondary"
+    }`;
+
   return (
-    <header className="sticky top-0 z-[100] bg-white/96 backdrop-blur-[10px] border-b border-hub-border h-[58px] flex items-center px-7 gap-3.5">
-      <div className="flex items-center gap-2.5 shrink-0">
-        <BrandLogo variant="icon" />
-        <span className="text-base font-bold tracking-tight text-hub-text">
-          HiDD WoW
-        </span>
-      </div>
+    <header className="sticky top-0 z-[100] bg-white/96 backdrop-blur-[10px] border-b border-hub-border">
+      {/* Desktop */}
+      <div className="hidden md:flex items-center h-[58px] px-7 gap-3.5">
+        <div className="flex items-center gap-2.5 shrink-0">
+          <BrandLogo variant="icon" />
+          <span className="text-base font-bold tracking-tight text-hub-text">
+            HiDD WoW
+          </span>
+        </div>
 
-      <div className="flex gap-0.5 bg-hub-surface rounded-[10px] p-1 shrink-0">
-        <button onClick={() => onViewChange("dashboard")} className={tabClass("dashboard")}>
-          대시보드
-        </button>
-        <button onClick={() => onViewChange("archive")} className={tabClass("archive")}>
-          아카이브
-        </button>
-      </div>
+        <div className="flex gap-0.5 bg-hub-surface rounded-[10px] p-1 shrink-0">
+          <button onClick={() => onViewChange("dashboard")} className={tabClass("dashboard")}>
+            대시보드
+          </button>
+          <button onClick={() => onViewChange("archive")} className={tabClass("archive")}>
+            아카이브
+          </button>
+        </div>
 
-      <div className="flex-1" />
+        <div className="flex-1" />
 
-      <div className="text-[13px] text-hub-secondary bg-hub-surface px-3.5 py-1.5 rounded-full shrink-0">
-        {todayStr}
-      </div>
+        <div className="text-[13px] text-hub-secondary bg-hub-surface px-3.5 py-1.5 rounded-full shrink-0">
+          {todayStr}
+        </div>
 
-      {isAdmin && (
+        {isAdmin && (
+          <button
+            onClick={onOpenUserPanel}
+            className="flex items-center gap-1.5 text-[13px] font-semibold text-hub-primary bg-hub-surface border border-[#E8D9A8] rounded-lg px-3.5 h-9 shrink-0"
+          >
+            <UsersIcon />
+            회원 관리
+            {pendingCount > 0 && (
+              <span className="bg-red-700 text-white text-[10px] font-bold px-1.5 py-px rounded-lg">
+                {pendingCount}
+              </span>
+            )}
+          </button>
+        )}
+
+        <div className="flex items-center gap-2 bg-hub-bg rounded-full py-1.5 pl-3.5 pr-2 shrink-0">
+          <span className="text-[13px] font-medium text-hub-text">{currentUserName}</span>
+          <button
+            onClick={onLogout}
+            className="text-[11px] text-hub-muted bg-white rounded-xl px-2.5 py-0.5 font-medium"
+          >
+            로그아웃
+          </button>
+        </div>
+
         <button
-          onClick={onOpenUserPanel}
-          className="flex items-center gap-1.5 text-[13px] font-semibold text-hub-primary bg-hub-surface border border-[#E8D9A8] rounded-lg px-3.5 h-9 shrink-0"
+          onClick={onAddProject}
+          className="bg-hub-primary text-hub-primary-foreground rounded-[10px] px-[18px] h-9 text-[13px] font-semibold flex items-center gap-1.5 shrink-0"
         >
-          <UsersIcon />
-          회원 관리
-          {pendingCount > 0 && (
-            <span className="bg-red-700 text-white text-[10px] font-bold px-1.5 py-px rounded-lg">
-              {pendingCount}
+          <PlusIcon className="text-hub-primary-foreground" />
+          새 프로젝트
+        </button>
+      </div>
+
+      {/* Mobile */}
+      <div className="md:hidden pt-[max(0.5rem,env(safe-area-inset-top))]">
+        <div className="flex items-center justify-between gap-2 px-4 h-[50px]">
+          <div className="flex items-center gap-2 min-w-0">
+            <BrandLogo variant="icon" />
+            <span className="text-[15px] font-bold tracking-tight text-hub-text truncate">
+              HiDD WoW
             </span>
-          )}
-        </button>
-      )}
+          </div>
 
-      <div className="flex items-center gap-2 bg-hub-bg rounded-full py-1.5 pl-3.5 pr-2 shrink-0">
-        <span className="text-[13px] font-medium text-hub-text">{currentUserName}</span>
-        <button
-          onClick={onLogout}
-          className="text-[11px] text-hub-muted bg-white rounded-xl px-2.5 py-0.5 font-medium"
-        >
-          로그아웃
-        </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {isAdmin && (
+              <button
+                onClick={onOpenUserPanel}
+                className="relative flex items-center justify-center w-9 h-9 text-hub-primary bg-hub-surface border border-[#E8D9A8] rounded-lg"
+                aria-label="회원 관리"
+              >
+                <UsersIcon />
+                {pendingCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-700 text-white text-[9px] font-bold min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center">
+                    {pendingCount}
+                  </span>
+                )}
+              </button>
+            )}
+
+            <div className="flex items-center gap-1 bg-hub-bg rounded-full py-1 pl-2.5 pr-1.5 max-w-[120px]">
+              <span className="text-xs font-medium text-hub-text truncate">
+                {currentUserName}
+              </span>
+              <button
+                onClick={onLogout}
+                className="text-[10px] text-hub-muted bg-white rounded-xl px-2 py-0.5 font-medium shrink-0"
+              >
+                나가기
+              </button>
+            </div>
+
+            <button
+              onClick={onAddProject}
+              className="w-9 h-9 bg-hub-primary text-hub-primary-foreground rounded-[10px] flex items-center justify-center shrink-0"
+              aria-label="새 프로젝트"
+            >
+              <PlusIcon className="text-hub-primary-foreground" />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 px-4 pb-2.5">
+          <div className="flex gap-0.5 bg-hub-surface rounded-[10px] p-1 flex-1 min-w-0">
+            <button
+              onClick={() => onViewChange("dashboard")}
+              className={mobileTabClass("dashboard")}
+            >
+              대시보드
+            </button>
+            <button
+              onClick={() => onViewChange("archive")}
+              className={mobileTabClass("archive")}
+            >
+              아카이브
+            </button>
+          </div>
+          <div className="text-[11px] text-hub-secondary bg-hub-surface px-2.5 py-1.5 rounded-full shrink-0 whitespace-nowrap">
+            {todayStr}
+          </div>
+        </div>
       </div>
-
-      <button
-        onClick={onAddProject}
-        className="bg-hub-primary text-hub-primary-foreground rounded-[10px] px-[18px] h-9 text-[13px] font-semibold flex items-center gap-1.5 shrink-0"
-      >
-        <PlusIcon className="text-hub-primary-foreground" />
-        새 프로젝트
-      </button>
     </header>
   );
 }

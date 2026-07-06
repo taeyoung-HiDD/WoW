@@ -63,7 +63,7 @@ export function ProjectListView({
             <div
               key={p.id}
               onClick={() => onOpenProject(p.id)}
-              className="grid grid-cols-1 md:grid-cols-[2fr_110px_1.5fr_1.5fr_120px] gap-3 px-4 py-[11px] border-b border-[#F0F5EE] cursor-pointer transition-colors hover:bg-[#F7FAF5] items-center"
+              className="grid grid-cols-1 md:grid-cols-[2fr_110px_1.5fr_1.5fr_120px] gap-2 md:gap-3 px-4 py-3 md:py-[11px] border-b border-[#F0F5EE] cursor-pointer transition-colors hover:bg-[#F7FAF5] items-start md:items-center"
             >
               <div className="flex items-center gap-2 min-w-0">
                 <div
@@ -82,11 +82,19 @@ export function ProjectListView({
                   </span>
                 </div>
               </div>
-              <div className="text-[11px] text-hub-muted leading-snug">
-                <div>{fmt(p.start)}</div>
-                <div>{p.end ? `~ ${fmt(p.end)}` : "~ 미정"}</div>
+              <div className="text-[11px] text-hub-muted leading-snug md:block">
+                <span className="md:hidden text-[10px] font-bold text-hub-secondary uppercase tracking-wide mr-2">
+                  기간
+                </span>
+                <span>{fmt(p.start)}</span>
+                <span className="mx-1 md:hidden">~</span>
+                <span className="hidden md:block">{p.end ? `~ ${fmt(p.end)}` : "~ 미정"}</span>
+                <span className="md:hidden">{p.end ? fmt(p.end) : "미정"}</span>
               </div>
               <div className="min-w-0">
+                <div className="text-[10px] font-bold text-hub-secondary uppercase tracking-wide mb-0.5 md:hidden">
+                  진행 중인 Task
+                </div>
                 <div className="text-xs font-medium text-hub-text truncate">
                   {cur?.name ?? "—"}
                 </div>
@@ -97,6 +105,9 @@ export function ProjectListView({
                 </div>
               </div>
               <div className="min-w-0">
+                <div className="text-[10px] font-bold text-hub-secondary uppercase tracking-wide mb-0.5 md:hidden">
+                  다음 Task
+                </div>
                 <div className="text-xs text-hub-secondary truncate">
                   {nxt?.name ?? "—"}
                 </div>
@@ -107,6 +118,9 @@ export function ProjectListView({
                 </div>
               </div>
               <div className="text-xs text-hub-secondary truncate">
+                <span className="md:hidden text-[10px] font-bold text-hub-secondary uppercase tracking-wide mr-2">
+                  담당자
+                </span>
                 {getMemberNames(p.members, membersLookup)}
               </div>
             </div>

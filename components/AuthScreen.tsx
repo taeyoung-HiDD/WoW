@@ -33,8 +33,8 @@ export function AuthScreen({
     authForm.error.includes("완료되었습니다") || authForm.error.includes("인증 후");
 
   return (
-    <div className="min-h-screen bg-hub-bg flex items-center justify-center p-6">
-      <div className="bg-white rounded-[20px] p-10 w-full max-w-[400px] shadow-[0_8px_40px_rgba(26,46,30,0.12)]">
+    <div className="min-h-screen bg-hub-bg flex items-center justify-center p-4 sm:p-6">
+      <div className="bg-white rounded-[20px] p-6 sm:p-10 w-full max-w-[400px] shadow-[0_8px_40px_rgba(26,46,30,0.12)]">
         <div className="flex flex-col items-center mb-8">
           <BrandLogo variant="auth" className="mb-4" />
           <div className="text-[21px] font-bold text-hub-text tracking-tight">
@@ -185,8 +185,8 @@ export function PendingScreen({
   onLogout: () => void;
 }) {
   return (
-    <div className="min-h-screen bg-hub-bg flex items-center justify-center p-6">
-      <div className="bg-white rounded-[20px] py-[52px] px-10 w-full max-w-[440px] text-center shadow-[0_8px_40px_rgba(26,46,30,0.12)]">
+    <div className="min-h-screen bg-hub-bg flex items-center justify-center p-4 sm:p-6">
+      <div className="bg-white rounded-[20px] py-10 sm:py-[52px] px-6 sm:px-10 w-full max-w-[440px] text-center shadow-[0_8px_40px_rgba(26,46,30,0.12)]">
         <div className="w-[68px] h-[68px] bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-5">
           <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
             <circle cx="15" cy="15" r="12.5" stroke="#E8A838" strokeWidth="2" />

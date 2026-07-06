@@ -33,32 +33,36 @@ export function ArchiveView({ projects, onRestore, onDelete, membersLookup }: Ar
             return (
               <div
                 key={p.id}
-                className="bg-white rounded-xl border border-hub-border px-[18px] py-3.5 flex items-center gap-3.5"
+                className="bg-white rounded-xl border border-hub-border px-4 sm:px-[18px] py-3.5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5"
               >
-                <div
-                  className="w-2.5 h-2.5 rounded-full shrink-0"
-                  style={{ background: p.color }}
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-sm text-hub-text">{p.name}</div>
-                  <div className="text-xs text-hub-muted mt-0.5">
-                    {formatProjectRange(p.start, p.end)} · {done}/{total} 완료
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div
+                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                    style={{ background: p.color }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm text-hub-text truncate">{p.name}</div>
+                    <div className="text-xs text-hub-muted mt-0.5">
+                      {formatProjectRange(p.start, p.end)} · {done}/{total} 완료
+                    </div>
                   </div>
+                  <MemberAvatars memberIds={p.members} membersLookup={membersLookup} />
+                  <div className="text-sm font-bold text-hub-secondary shrink-0">{progress}%</div>
                 </div>
-                <MemberAvatars memberIds={p.members} membersLookup={membersLookup} />
-                <div className="text-sm font-bold text-hub-secondary">{progress}%</div>
-                <button
-                  onClick={() => onRestore(p.id)}
-                  className="bg-hub-surface text-hub-primary rounded-lg px-4 py-1.5 text-[13px] font-semibold"
-                >
-                  복원
-                </button>
-                <button
-                  onClick={() => onDelete(p.id)}
-                  className="bg-red-50 text-red-700 rounded-lg px-4 py-1.5 text-[13px] font-semibold"
-                >
-                  삭제
-                </button>
+                <div className="flex gap-2 sm:shrink-0">
+                  <button
+                    onClick={() => onRestore(p.id)}
+                    className="flex-1 sm:flex-none bg-hub-surface text-hub-primary rounded-lg px-4 py-1.5 text-[13px] font-semibold"
+                  >
+                    복원
+                  </button>
+                  <button
+                    onClick={() => onDelete(p.id)}
+                    className="flex-1 sm:flex-none bg-red-50 text-red-700 rounded-lg px-4 py-1.5 text-[13px] font-semibold"
+                  >
+                    삭제
+                  </button>
+                </div>
               </div>
             );
           })}

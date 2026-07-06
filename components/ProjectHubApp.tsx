@@ -28,8 +28,8 @@ export default function ProjectHubApp() {
         window.location.hostname === "127.0.0.1");
 
     return (
-      <div className="min-h-screen bg-hub-bg flex items-center justify-center p-6">
-        <div className="bg-white rounded-[20px] p-10 w-full max-w-[480px] shadow-[0_8px_40px_rgba(26,46,30,0.12)]">
+      <div className="min-h-screen bg-hub-bg flex items-center justify-center p-4 sm:p-6">
+        <div className="bg-white rounded-[20px] p-6 sm:p-10 w-full max-w-[480px] shadow-[0_8px_40px_rgba(26,46,30,0.12)]">
           <div className="text-[17px] font-bold text-hub-text mb-3 text-center">
             Supabase 설정 필요
           </div>
@@ -123,7 +123,7 @@ export default function ProjectHubApp() {
     hub.projects.find((p) => p.id === projectId)?.members ?? [];
 
   return (
-    <div className="min-h-screen bg-hub-bg text-hub-text">
+    <div className="min-h-screen bg-hub-bg text-hub-text overflow-x-hidden">
       <Header
         view={hub.view}
         todayStr={todayStr}
@@ -136,7 +136,7 @@ export default function ProjectHubApp() {
         onAddProject={() => hub.setShowAddProject(true)}
       />
 
-      <main className="px-7 pb-16 max-w-[1440px] mx-auto">
+      <main className="px-4 sm:px-6 lg:px-7 pb-10 sm:pb-16 max-w-[1440px] mx-auto w-full">
         {hub.view === "dashboard" && (
           <>
             <KanbanBoard

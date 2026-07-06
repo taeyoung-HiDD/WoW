@@ -44,14 +44,14 @@ export function ProjectSection({
   );
 
   return (
-    <div className="pt-7">
-      <div className="flex items-center gap-2.5 mb-3 flex-wrap">
+    <div className="pt-5 sm:pt-7">
+      <div className="flex items-center gap-2 sm:gap-2.5 mb-3 flex-wrap">
         <span className="text-[11px] font-bold text-hub-secondary uppercase tracking-widest">
           진행 중인 프로젝트
         </span>
         <span className="text-xs text-hub-muted">{projects.length}개</span>
-        <div className="flex-1 h-px bg-hub-border min-w-5" />
-        <div className="flex gap-1 shrink-0">
+        <div className="hidden sm:block flex-1 h-px bg-hub-border min-w-5" />
+        <div className="flex gap-1 shrink-0 w-full sm:w-auto sm:ml-auto">
           {viewBtn("list", "리스트")}
           {viewBtn("gantt", "간트")}
           {viewBtn("calendar", "캘린더")}

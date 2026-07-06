@@ -242,36 +242,36 @@ export function CalendarView({
 
   return (
     <div>
-      <div className="flex items-center gap-4 mt-3.5 mb-5">
+      <div className="flex items-center gap-2 sm:gap-4 mt-3.5 mb-4 sm:mb-5">
         <button
           onClick={prevMonth}
-          className="w-[34px] h-[34px] rounded-lg bg-white border border-hub-border text-hub-secondary text-[17px] flex items-center justify-center"
+          className="w-8 h-8 sm:w-[34px] sm:h-[34px] rounded-lg bg-white border border-hub-border text-hub-secondary text-[17px] flex items-center justify-center shrink-0"
         >
           ‹
         </button>
-        <div className="text-lg font-bold text-hub-text min-w-[140px] text-center">
+        <div className="text-base sm:text-lg font-bold text-hub-text flex-1 text-center">
           {calDate.toLocaleDateString("ko-KR", { year: "numeric", month: "long" })}
         </div>
         <button
           onClick={nextMonth}
-          className="w-[34px] h-[34px] rounded-lg bg-white border border-hub-border text-hub-secondary text-[17px] flex items-center justify-center"
+          className="w-8 h-8 sm:w-[34px] sm:h-[34px] rounded-lg bg-white border border-hub-border text-hub-secondary text-[17px] flex items-center justify-center shrink-0"
         >
           ›
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-[3px] mb-[3px]">
+      <div className="grid grid-cols-7 gap-[2px] sm:gap-[3px] mb-[2px] sm:mb-[3px]">
         {DAY_HEADERS.map((label) => (
           <div
             key={label}
-            className="text-center text-[11px] font-semibold text-hub-muted py-1.5 tracking-wide"
+            className="text-center text-[10px] sm:text-[11px] font-semibold text-hub-muted py-1 sm:py-1.5 tracking-wide"
           >
             {label}
           </div>
         ))}
       </div>
 
-      <div className="flex flex-col gap-[3px]">
+      <div className="flex flex-col gap-[2px] sm:gap-[3px]">
         {weeks.map((week, weekIndex) => {
           const laneCount = lanesPerWeek.get(weekIndex) ?? 0;
           const barAreaH =
@@ -279,7 +279,7 @@ export function CalendarView({
           const weekSegments = segments.filter((s) => s.weekIndex === weekIndex);
 
           return (
-            <div key={weekIndex} className="grid grid-cols-7 gap-[3px] overflow-hidden">
+            <div key={weekIndex} className="grid grid-cols-7 gap-[2px] sm:gap-[3px] overflow-hidden">
               {week.map((day, col) => {
                 const cellSegs = day.hasDate
                   ? weekSegments.filter(
@@ -311,7 +311,7 @@ export function CalendarView({
                           style={{ height: DATE_H, paddingLeft: CELL_PAD }}
                         >
                           <div
-                            className="w-[22px] h-[22px] rounded-full flex items-center justify-center text-xs"
+                            className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] rounded-full flex items-center justify-center text-[10px] sm:text-xs"
                             style={{
                               fontWeight: day.isToday ? 700 : 400,
                               color: day.isToday
