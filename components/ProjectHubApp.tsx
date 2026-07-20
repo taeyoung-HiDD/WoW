@@ -201,6 +201,9 @@ export default function ProjectHubApp() {
         onMilestoneDateChange={(mid, field, value) =>
           hub.selId && hub.setMilestoneDate(hub.selId, mid, field, value)
         }
+        onDeleteMilestone={(mid) =>
+          hub.selId && hub.deleteMilestone(hub.selId, mid)
+        }
         onToggleMs={(mid) => hub.selId && hub.toggleMs(hub.selId, mid)}
         onNotesChange={(notes) => hub.selId && hub.setNotes(hub.selId, notes)}
         onOpenMsForm={() => {

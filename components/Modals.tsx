@@ -265,6 +265,7 @@ interface ProjectModalProps {
   onProjectNameChange: (name: string) => void;
   onMilestoneNameChange: (mid: string, name: string) => void;
   onMilestoneDateChange: (mid: string, field: "start" | "end", value: string) => void;
+  onDeleteMilestone: (mid: string) => void;
   onToggleMs: (mid: string) => void;
   onNotesChange: (notes: string) => void;
   onOpenMsForm: () => void;
@@ -305,6 +306,7 @@ export function ProjectModal({
   onProjectNameChange,
   onMilestoneNameChange,
   onMilestoneDateChange,
+  onDeleteMilestone,
   onToggleMs,
   onNotesChange,
   onOpenMsForm,
@@ -629,6 +631,15 @@ export function ProjectModal({
                         }}
                         title="종료일"
                       />
+                      <button
+                        type="button"
+                        onClick={() => onDeleteMilestone(m.id)}
+                        className="w-6 h-6 rounded-md bg-red-50 text-red-700 text-sm flex items-center justify-center shrink-0"
+                        title="마일스톤 삭제"
+                        aria-label="마일스톤 삭제"
+                      >
+                        ×
+                      </button>
                     </div>
                   </div>
                 );

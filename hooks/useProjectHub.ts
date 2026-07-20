@@ -495,6 +495,18 @@ export function useProjectHub() {
     );
   };
 
+  const deleteMilestone = (pid: string, mid: string) => {
+    const project = projects.find((p) => p.id === pid);
+    const ms = project?.milestones.find((m) => m.id === mid);
+    const label = ms?.name ? `"${ms.name}"` : "이 마일스톤";
+    if (!window.confirm(`${label}을(를) 삭제하시겠습니까?`)) return;
+    updateProjects((p) =>
+      p.id !== pid
+        ? p
+        : { ...p, milestones: p.milestones.filter((m) => m.id !== mid) }
+    );
+  };
+
   const addMs = () => {
     if (!selId || !newMsName.trim() || !newMsStart || !newMsEnd) return;
     const ms = {
@@ -673,6 +685,7 @@ export function useProjectHub() {
     setProjectName,
     setMilestoneName,
     setMilestoneDate,
+    deleteMilestone,
     addMs,
     addFile,
     addProject,
