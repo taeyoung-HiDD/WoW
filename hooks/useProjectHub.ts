@@ -22,6 +22,7 @@ import type {
   AuthUser,
   AuthView,
   KanbanItem,
+  Milestone,
   Project,
   ProjectStatus,
   ProjectView,
@@ -527,8 +528,15 @@ export function useProjectHub() {
     setShowFileForm(false);
   };
 
-  const addProject = () => {
+  const addProject = (opts?: {
+    milestones?: Milestone[];
+    members?: string[];
+  }) => {
     if (!addForm.name.trim() || !addForm.startDate) return;
+    const milestones = (opts?.milestones ?? []).map((m, i) => ({
+      ...m,
+      id: m.id || `ms_${Date.now()}_${i}`,
+    }));
     const np: Project = {
       id: "p_" + Date.now(),
       name: addForm.name.trim(),
@@ -537,11 +545,11 @@ export function useProjectHub() {
       end: addForm.endDate || "",
       status: "not_started",
       color: addForm.color || COLORS[projects.length % COLORS.length],
-      milestones: [],
+      milestones,
       notes: "",
       files: [],
       archived: false,
-      members: [],
+      members: opts?.members ?? [],
     };
     setProjects((prev) => [...prev, np]);
     void upsertProject(np);
@@ -552,6 +560,26 @@ export function useProjectHub() {
       endDate: "",
       desc: "",
       color: COLORS[0],
+    });
+  };
+
+  const importWbsToProject = (
+    pid: string,
+    milestones: Milestone[],
+    mode: "replace" | "append",
+    memberIds: string[] = []
+  ) => {
+    if (!pid || milestones.length === 0) return;
+    const stamped = milestones.map((m, i) => ({
+      ...m,
+      id: m.id || `ms_wbs_${Date.now()}_${i}`,
+    }));
+    updateProjects((p) => {
+      if (p.id !== pid) return p;
+      const nextMs =
+        mode === "replace" ? stamped : [...p.milestones, ...stamped];
+      const members = Array.from(new Set([...(p.members || []), ...memberIds]));
+      return { ...p, milestones: nextMs, members };
     });
   };
 
@@ -648,6 +676,7 @@ export function useProjectHub() {
     addMs,
     addFile,
     addProject,
+    importWbsToProject,
     openProject,
   };
 }

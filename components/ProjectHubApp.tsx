@@ -230,11 +230,16 @@ export default function ProjectHubApp() {
         onSubmitFile={hub.addFile}
         onFileNameChange={hub.setNewFileName}
         onFileUrlChange={hub.setNewFileUrl}
+        onImportWbs={(milestones, mode, memberIds) => {
+          if (!hub.selId) return;
+          hub.importWbsToProject(hub.selId, milestones, mode, memberIds);
+        }}
       />
 
       <AddProjectModal
         open={hub.showAddProject}
         form={hub.addForm}
+        approvedMembers={projectMembers}
         onClose={() => {
           hub.setShowAddProject(false);
           hub.setAddForm({

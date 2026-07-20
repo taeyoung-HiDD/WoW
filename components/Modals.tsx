@@ -1,11 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { COLORS, STATUS } from "@/lib/constants";
-import type { Project, ProjectMember, ProjectStatus } from "@/lib/types";
+import type { Milestone, Project, ProjectMember, ProjectStatus } from "@/lib/types";
 import { resolveProjectMembers, milestoneStart, milestoneEnd, formatProjectRange } from "@/lib/utils";
 import { fmt } from "@/lib/utils";
+import { matchMemberIds } from "@/lib/wbs/matchMembers";
+import type { WbsImportResult } from "@/lib/wbs/types";
 import { FileIcon } from "./icons";
+import {
+  WbsFilePicker,
+  WbsImportPanel,
+  type WbsImportMode,
+} from "./WbsImportPanel";
 
 function InlineEditableName({
   value,
@@ -60,22 +67,50 @@ interface AddProjectModalProps {
     desc: string;
     color: string;
   };
+  approvedMembers: ProjectMember[];
   onClose: () => void;
   onChange: (field: string, value: string) => void;
-  onSubmit: () => void;
+  onSubmit: (opts?: { milestones?: Milestone[]; members?: string[] }) => void;
 }
 
 export function AddProjectModal({
   open,
   form,
+  approvedMembers,
   onClose,
   onChange,
   onSubmit,
 }: AddProjectModalProps) {
+  const [wbs, setWbs] = useState<WbsImportResult | null>(null);
+  const [wbsError, setWbsError] = useState("");
+
+  useEffect(() => {
+    if (!open) {
+      setWbs(null);
+      setWbsError("");
+    }
+  }, [open]);
+
+  const match = useMemo(
+    () =>
+      wbs
+        ? matchMemberIds(wbs.ownerNames, approvedMembers)
+        : { memberIds: [] as string[], unmatched: [] as string[] },
+    [wbs, approvedMembers]
+  );
+
   if (!open) return null;
 
   const inputClass =
     "w-full border border-hub-border rounded-[10px] px-3.5 py-2.5 text-sm outline-none bg-white";
+
+  const applyWbs = (result: WbsImportResult) => {
+    setWbsError("");
+    setWbs(result);
+    if (result.projectName) onChange("name", result.projectName);
+    if (result.projectStart) onChange("startDate", result.projectStart);
+    if (result.projectEnd) onChange("endDate", result.projectEnd);
+  };
 
   return (
     <div
@@ -89,6 +124,27 @@ export function AddProjectModal({
       >
         <h2 className="text-[17px] font-bold text-hub-text mb-5">새 프로젝트 추가</h2>
         <div className="flex flex-col gap-3.5">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <span className="text-xs font-semibold text-hub-secondary">
+                WBS 엑셀로 가져오기
+              </span>
+              <WbsFilePicker onParsed={applyWbs} onError={setWbsError} />
+            </div>
+            {wbsError && (
+              <div className="text-[12px] text-red-700 bg-red-50 rounded-lg px-2.5 py-2">
+                {wbsError}
+              </div>
+            )}
+            {wbs && (
+              <WbsImportPanel
+                result={wbs}
+                unmatchedNames={match.unmatched}
+                onClear={() => setWbs(null)}
+              />
+            )}
+          </div>
+
           <div>
             <label className="text-xs font-semibold text-hub-secondary block mb-1.5">
               프로젝트 이름 *
@@ -167,10 +223,21 @@ export function AddProjectModal({
             취소
           </button>
           <button
-            onClick={onSubmit}
+            onClick={() =>
+              onSubmit(
+                wbs
+                  ? {
+                      milestones: wbs.milestones,
+                      members: match.memberIds,
+                    }
+                  : undefined
+              )
+            }
             className="px-5 py-2 rounded-[10px] text-sm font-semibold bg-hub-primary text-hub-primary-foreground"
           >
-            프로젝트 생성
+            {wbs
+              ? `프로젝트 생성 (${wbs.milestones.length}개 마일스톤)`
+              : "프로젝트 생성"}
           </button>
         </div>
       </div>
@@ -211,6 +278,11 @@ interface ProjectModalProps {
   onSubmitFile: () => void;
   onFileNameChange: (v: string) => void;
   onFileUrlChange: (v: string) => void;
+  onImportWbs: (
+    milestones: Milestone[],
+    mode: WbsImportMode,
+    memberIds: string[]
+  ) => void;
 }
 
 export function ProjectModal({
@@ -246,7 +318,26 @@ export function ProjectModal({
   onSubmitFile,
   onFileNameChange,
   onFileUrlChange,
+  onImportWbs,
 }: ProjectModalProps) {
+  const [wbs, setWbs] = useState<WbsImportResult | null>(null);
+  const [wbsError, setWbsError] = useState("");
+  const [wbsMode, setWbsMode] = useState<WbsImportMode>("replace");
+
+  useEffect(() => {
+    setWbs(null);
+    setWbsError("");
+    setWbsMode("replace");
+  }, [project?.id]);
+
+  const wbsMatch = useMemo(
+    () =>
+      wbs
+        ? matchMemberIds(wbs.ownerNames, approvedMembers)
+        : { memberIds: [] as string[], unmatched: [] as string[] },
+    [wbs, approvedMembers]
+  );
+
   if (!project) return null;
 
   const done = project.milestones.filter((m) => m.done).length;
@@ -410,9 +501,56 @@ export function ProjectModal({
           </div>
 
           <div>
-            <div className="text-[11px] font-bold text-hub-secondary uppercase tracking-widest mb-2.5">
-              마일스톤
+            <div className="flex items-center justify-between gap-2 mb-2.5 flex-wrap">
+              <div className="text-[11px] font-bold text-hub-secondary uppercase tracking-widest">
+                마일스톤
+              </div>
+              <WbsFilePicker
+                label="WBS 가져오기"
+                onParsed={(result) => {
+                  setWbsError("");
+                  setWbs(result);
+                  setWbsMode("replace");
+                }}
+                onError={setWbsError}
+              />
             </div>
+            {wbsError && (
+              <div className="text-[12px] text-red-700 bg-red-50 rounded-lg px-2.5 py-2 mb-2.5">
+                {wbsError}
+              </div>
+            )}
+            {wbs && (
+              <div className="mb-3 flex flex-col gap-2">
+                <WbsImportPanel
+                  result={wbs}
+                  unmatchedNames={wbsMatch.unmatched}
+                  mode={wbsMode}
+                  onModeChange={setWbsMode}
+                  existingMilestoneCount={project.milestones.length}
+                  onClear={() => setWbs(null)}
+                />
+                <div className="flex gap-2 justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setWbs(null)}
+                    className="px-3.5 py-1.5 rounded-lg text-[13px] text-hub-secondary bg-hub-surface"
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onImportWbs(wbs.milestones, wbsMode, wbsMatch.memberIds);
+                      setWbs(null);
+                    }}
+                    className="px-3.5 py-1.5 rounded-lg text-[13px] font-semibold bg-hub-primary text-hub-primary-foreground"
+                  >
+                    {wbsMode === "replace" ? "마일스톤 교체" : "마일스톤 추가"}
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="flex flex-col gap-1">
               {project.milestones.map((m, idx) => {
                 const msStart = new Date(
