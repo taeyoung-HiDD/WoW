@@ -13,6 +13,7 @@ import {
   signIn,
   signOut,
   signUp,
+  updateProfileRole,
   updateProfileStatus,
   upsertProject,
 } from "@/lib/supabase/api";
@@ -390,6 +391,13 @@ export function useProjectHub() {
     setAuthUsers(users);
   };
 
+  const grantAdmin = async (uid: string) => {
+    const ok = await updateProfileRole(uid, "admin");
+    if (!ok) return;
+    const users = await fetchAllProfiles();
+    setAuthUsers(users);
+  };
+
   const toggleMs = (pid: string, mid: string) => {
     updateProjects((p) =>
       p.id !== pid
@@ -674,6 +682,7 @@ export function useProjectHub() {
     logout,
     approveUser,
     rejectUser,
+    grantAdmin,
     toggleMs,
     addMember,
     removeMember,

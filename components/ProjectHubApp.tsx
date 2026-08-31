@@ -265,6 +265,7 @@ export default function ProjectHubApp() {
         onClose={() => hub.setShowUserPanel(false)}
         onApprove={hub.approveUser}
         onReject={hub.rejectUser}
+        onGrantAdmin={hub.grantAdmin}
       />
     </div>
   );

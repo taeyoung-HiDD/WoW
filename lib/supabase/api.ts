@@ -95,6 +95,21 @@ export async function updateProfileStatus(
   return !error;
 }
 
+export async function updateProfileRole(
+  userId: string,
+  role: "admin" | "user"
+): Promise<boolean> {
+  const supabase = getSupabase();
+  if (!supabase) return false;
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ role })
+    .eq("id", userId);
+
+  return !error;
+}
+
 export async function fetchProjects(): Promise<Project[]> {
   const supabase = getSupabase();
   if (!supabase) return [];

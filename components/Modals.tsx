@@ -793,9 +793,17 @@ interface UserPanelProps {
   onClose: () => void;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
+  onGrantAdmin: (id: string) => void;
 }
 
-export function UserPanel({ open, users, onClose, onApprove, onReject }: UserPanelProps) {
+export function UserPanel({
+  open,
+  users,
+  onClose,
+  onApprove,
+  onReject,
+  onGrantAdmin,
+}: UserPanelProps) {
   if (!open) return null;
 
   const statusStyle = (status: string) => {
@@ -873,6 +881,22 @@ export function UserPanel({ open, users, onClose, onApprove, onReject }: UserPan
                   >
                     {sc.label}
                   </span>
+                  {user.status === "approved" && user.role !== "admin" && (
+                    <button
+                      onClick={() => {
+                        if (
+                          confirm(
+                            `${user.name}님에게 관리자 권한을 부여할까요?`
+                          )
+                        ) {
+                          onGrantAdmin(user.id);
+                        }
+                      }}
+                      className="bg-[#F8F1D4] text-[#1A2E1E] rounded-[7px] px-3 py-1 text-xs font-semibold shrink-0"
+                    >
+                      관리자 지정
+                    </button>
+                  )}
                   {user.status !== "approved" && (
                     <button
                       onClick={() => onApprove(user.id)}
